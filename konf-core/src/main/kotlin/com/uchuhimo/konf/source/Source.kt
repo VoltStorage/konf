@@ -57,7 +57,6 @@ import com.uchuhimo.konf.source.base.ListStringNode
 import com.uchuhimo.konf.source.base.toHierarchical
 import com.uchuhimo.konf.toLittleCamelCase
 import com.uchuhimo.konf.toPath
-import com.uchuhimo.konf.toTree
 import com.uchuhimo.konf.toValue
 import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookup
@@ -1101,7 +1100,9 @@ private fun implOf(clazz: Class<*>): Class<*> =
         else -> clazz
     }
 
-fun Any.asTree(): TreeNode =
+fun Any.asTree(): TreeNode = asTree("")
+
+fun Any.asTree(comment: String = ""): TreeNode =
     when (this) {
         is TreeNode -> this
         is Source -> this.tree
@@ -1134,10 +1135,10 @@ fun Any.asTree(): TreeNode =
                         }.toMap().toMutableMap()
                     )
                 }
-                else -> ValueSourceNode(this)
+                else -> ValueSourceNode(this, comments = comment)
             }
         }
-        else -> ValueSourceNode(this)
+        else -> ValueSourceNode(this, comments = comment)
     }
 
 fun Any.asSource(type: String = "", info: SourceInfo = SourceInfo()): Source =
