@@ -15,14 +15,12 @@
  */
 
 package com.uchuhimo.konf.source.yaml
-
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.Feature
 import com.uchuhimo.konf.ListNode
 import com.uchuhimo.konf.TreeNode
 import com.uchuhimo.konf.ValueNode
 import com.uchuhimo.konf.source.Writer
-import com.uchuhimo.konf.source.base.toHierarchicalMap
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
