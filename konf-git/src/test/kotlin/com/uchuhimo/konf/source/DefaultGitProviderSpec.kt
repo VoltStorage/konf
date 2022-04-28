@@ -42,6 +42,7 @@ object DefaultGitProviderSpec : SubjectSpek<DefaultProviders>({
                         addFilepattern("source.properties")
                     }.call()
                     git.commit().apply {
+                        setSign(false)
                         message = "init commit"
                     }.call()
                 }

@@ -44,6 +44,7 @@ object GitProviderSpec : SubjectSpek<Provider>({
                         addFilepattern("test")
                     }.call()
                     git.commit().apply {
+                        setSign(false)
                         message = "init commit"
                     }.call()
                 }
@@ -69,6 +70,7 @@ object GitProviderSpec : SubjectSpek<Provider>({
                         addFilepattern("test")
                     }.call()
                     git.commit().apply {
+                        setSign(false)
                         message = "init commit"
                     }.call()
                 }

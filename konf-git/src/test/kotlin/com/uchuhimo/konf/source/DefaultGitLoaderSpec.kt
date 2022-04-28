@@ -52,6 +52,7 @@ object DefaultGitLoaderSpec : SubjectSpek<DefaultLoaders>({
                         addFilepattern("source.properties")
                     }.call()
                     git.commit().apply {
+                        setSign(false)
                         message = "init commit"
                     }.call()
                 }
@@ -95,6 +96,7 @@ object DefaultGitLoaderSpec : SubjectSpek<DefaultLoaders>({
                             addFilepattern("source.properties")
                         }.call()
                         git.commit().apply {
+                            setSign(false)
                             message = "init commit"
                         }.call()
                     }
@@ -107,6 +109,7 @@ object DefaultGitLoaderSpec : SubjectSpek<DefaultLoaders>({
                             addFilepattern("source.properties")
                         }.call()
                         git.commit().apply {
+                            setSign(false)
                             message = "update value"
                         }.call()
                     }
@@ -134,6 +137,7 @@ object DefaultGitLoaderSpec : SubjectSpek<DefaultLoaders>({
                         addFilepattern("source.properties")
                     }.call()
                     git.commit().apply {
+                        setSign(false)
                         message = "init commit"
                     }.call()
                 }
@@ -155,6 +159,7 @@ object DefaultGitLoaderSpec : SubjectSpek<DefaultLoaders>({
                         addFilepattern("source.properties")
                     }.call()
                     git.commit().apply {
+                        setSign(false)
                         message = "update value"
                     }.call()
                 }

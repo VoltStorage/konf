@@ -53,6 +53,7 @@ object GitLoaderSpec : SubjectSpek<Loader>({
                         addFilepattern("test")
                     }.call()
                     git.commit().apply {
+                        setSign(false)
                         message = "init commit"
                     }.call()
                 }
@@ -96,6 +97,7 @@ object GitLoaderSpec : SubjectSpek<Loader>({
                             addFilepattern("test")
                         }.call()
                         git.commit().apply {
+                            setSign(false)
                             message = "init commit"
                         }.call()
                     }
@@ -108,6 +110,7 @@ object GitLoaderSpec : SubjectSpek<Loader>({
                             addFilepattern("test")
                         }.call()
                         git.commit().apply {
+                            setSign(false)
                             message = "update value"
                         }.call()
                     }
@@ -135,6 +138,7 @@ object GitLoaderSpec : SubjectSpek<Loader>({
                         addFilepattern("test")
                     }.call()
                     git.commit().apply {
+                        setSign(false)
                         message = "init commit"
                     }.call()
                 }
@@ -156,6 +160,7 @@ object GitLoaderSpec : SubjectSpek<Loader>({
                         addFilepattern("test")
                     }.call()
                     git.commit().apply {
+                        setSign(false)
                         message = "update value"
                     }.call()
                 }
