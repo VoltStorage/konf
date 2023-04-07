@@ -3,12 +3,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URL
 import java.util.Properties
 
-val ossUserToken by extra { getPrivateProperty("ossUserToken") }
-val ossUserPassword by extra { getPrivateProperty("ossUserPassword") }
+val repositoryUrl by extra{ getPrivateProperty("repositoryUrl") }
+val repoUserToken by extra { getPrivateProperty("repoUserToken") }
+val repoUserPassword by extra { getPrivateProperty("repoUserPassword") }
 val signPublications by extra { getPrivateProperty("signPublications") }
 val useAliyun by extra { shouldUseAliyun() }
 
 tasks.named<Wrapper>("wrapper") {
+    group = "help"
     gradleVersion = "8.0.1"
     distributionType = Wrapper.DistributionType.ALL
 }
@@ -53,7 +55,7 @@ allprojects {
     apply(plugin = "org.jetbrains.dokka")
 
     group = "com.uchuhimo"
-    version = "1.1.2"
+    version = "1.2.0-SNAPSHOT"
 
     repositories {
         if (useAliyun) {
@@ -221,7 +223,7 @@ subprojects {
         outputDirectory.set(tasks.javadoc.get().destinationDir)
         dokkaSourceSets {
             configureEach {
-                jdkVersion.set(9)
+                jdkVersion.set(11)
                 reportUndocumented.set(false)
                 sourceLink {
                     localDirectory.set(file("./"))
@@ -287,10 +289,10 @@ subprojects {
         }
         repositories {
             maven {
-                url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
+                url = uri(repositoryUrl)
                 credentials {
-                    username = ossUserToken
-                    password = ossUserPassword
+                    username = repoUserToken
+                    password = repoUserPassword
                 }
             }
         }

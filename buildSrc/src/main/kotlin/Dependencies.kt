@@ -5,7 +5,7 @@ object Versions {
     const val commonsText = "1.10.0"
     const val coroutines = "1.6.4"
     const val dependencyUpdate = "0.38.0"
-    const val dokka = "1.4.30"
+    const val dokka = "1.8.10"
     const val dom4j = "2.1.3"
     const val graal = "21.0.0.2"
     const val hamcrest = "1.3"
