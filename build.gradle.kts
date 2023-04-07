@@ -9,7 +9,7 @@ val signPublications by extra { getPrivateProperty("signPublications") }
 val useAliyun by extra { shouldUseAliyun() }
 
 tasks.named<Wrapper>("wrapper") {
-    gradleVersion = "7.0"
+    gradleVersion = "8.0.1"
     distributionType = Wrapper.DistributionType.ALL
 }
 
@@ -62,7 +62,7 @@ allprojects {
             mavenCentral()
         }
         maven {
-            url=uri("https://kotlin.bintray.com/kotlinx")
+            url = uri("https://kotlin.bintray.com/kotlinx")
         }
     }
 
@@ -73,9 +73,10 @@ allprojects {
         resolutionStrategy {
             componentSelection {
                 all {
-                    val rejected = listOf("alpha", "beta", "rc", "cr", "m", "preview", "b", "ea", "eap", "pr", "dev", "mt")
-                        .map { qualifier -> Regex("(?i).*[.-]$qualifier[.\\d-+]*") }
-                        .any { it.matches(candidate.version) }
+                    val rejected =
+                        listOf("alpha", "beta", "rc", "cr", "m", "preview", "b", "ea", "eap", "pr", "dev", "mt")
+                            .map { qualifier -> Regex("(?i).*[.-]$qualifier[.\\d-+]*") }
+                            .any { it.matches(candidate.version) }
                     if (rejected) {
                         reject("Release candidate")
                     }
@@ -135,7 +136,9 @@ subprojects {
         systemProperties["junit.jupiter.execution.parallel.mode.default"] = "concurrent"
         maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
         val properties = Properties()
-        properties.load(rootProject.file("konf-core/src/test/kotlin/com/uchuhimo/konf/source/env/env.properties").inputStream())
+        properties.load(
+            rootProject.file("konf-core/src/test/kotlin/com/uchuhimo/konf/source/env/env.properties").inputStream()
+        )
         properties.forEach { key, value ->
             environment(key as String, value)
         }
@@ -148,8 +151,11 @@ subprojects {
     tasks.withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = Versions.java.toString()
-            apiVersion = Versions.kotlinApi
-            languageVersion = Versions.kotlinLanguage
+            //apiVersion = Versions.kotlinApi.toString()
+            //languageVersion = Versions.kotlinLanguage.toString()
+            //jvmTarget = Versions.java.toString()
+            //apiVersion = Versions.kotlinApi
+            //languageVersion = Versions.kotlinLanguage
         }
     }
 
@@ -200,8 +206,10 @@ subprojects {
 
     val jacocoTestReport by tasks.existing(JacocoReport::class) {
         reports {
-            xml.isEnabled = true
-            html.isEnabled = true
+            //xml.isEnabled = true
+            xml.required.set(true)
+            //html.isEnabled = true
+            html.required.set(true)
         }
     }
 
@@ -235,7 +243,7 @@ subprojects {
     }
 
     val projectDescription = "A type-safe cascading configuration library for Kotlin/Java, " +
-        "supporting most configuration formats"
+            "supporting most configuration formats"
     val projectGroup = project.group as String
     val projectName = if (project.name == "konf-all") "konf" else project.name
     val projectVersion = project.version as String
