@@ -204,17 +204,17 @@ subprojects {
         toolVersion = Versions.jacoco
     }
 
-    val jacocoTestReport by tasks.existing(JacocoReport::class) {
+    /*val jacocoTestReport by tasks.existing(JacocoReport::class) {
         reports {
             //xml.isEnabled = true
             xml.required.set(true)
             //html.isEnabled = true
             html.required.set(true)
         }
-    }
+    }*/
 
     val check by tasks.existing {
-        dependsOn(jacocoTestReport)
+        //dependsOn(jacocoTestReport)
     }
 
     tasks.dokkaHtml {
