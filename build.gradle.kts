@@ -28,7 +28,7 @@ buildscript {
 plugins {
     java
     `java-test-fixtures`
-    jacoco
+    //jacoco
     `maven-publish`
     signing
     kotlin("jvm") version Versions.kotlin
@@ -43,7 +43,7 @@ plugins {
 allprojects {
     apply(plugin = "java")
     apply(plugin = "java-test-fixtures")
-    apply(plugin = "jacoco")
+    //apply(plugin = "jacoco")
     apply(plugin = "maven-publish")
     apply(plugin = "signing")
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -202,9 +202,11 @@ subprojects {
         }
     }
 
+    /*
     jacoco {
         toolVersion = Versions.jacoco
     }
+     */
 
     /*val jacocoTestReport by tasks.existing(JacocoReport::class) {
         reports {
