@@ -1,3 +1,5 @@
+this is a fork of https://github.com/uchuhimo/konf as the original project seems to be abandoned.
+I merged the open pull requests and fixed some bugs.
 # Konf
 
 [![Java 8+](https://img.shields.io/badge/Java-8+-4c7e9f.svg)](http://java.oracle.com)
@@ -18,6 +20,9 @@ A type-safe cascading configuration library for Kotlin/Java/Android, supporting 
 - **Cascading**. Config can fork from another config by adding a new layer on it. Each layer of config can be updated independently. This feature is powerful enough to support complicated situation such as configs with different values share common fallback config, which is automatically updated when configuration file changes.
 - **Self-documenting**. Document config item with type, default value and description when declaring.
 - **Extensible**. Easy to customize new sources for config or expose items in config.
+
+### Features if this Fork
+- **Commented**. Comment config items when declaring.
 
 ## Contents
 
