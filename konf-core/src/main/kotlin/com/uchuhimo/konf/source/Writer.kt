@@ -46,7 +46,7 @@ interface Writer {
      * @return a new source from specified file
      */
     fun toFile(file: File, mkdirs: Boolean = false) {
-        if (mkdirs) file.parentFile.mkdirs()
+        if (mkdirs) file.parentFile?.mkdirs()
         file.outputStream().use {
             toOutputStream(it)
         }
