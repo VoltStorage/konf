@@ -21,24 +21,12 @@ import com.uchuhimo.konf.ListNode
 import com.uchuhimo.konf.TreeNode
 import com.uchuhimo.konf.ValueNode
 import com.uchuhimo.konf.source.Writer
-import org.yaml.snakeyaml.DumperOptions
-import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.constructor.SafeConstructor
-import org.yaml.snakeyaml.representer.Representer
 import java.io.OutputStream
 
 /**
  * Writer for YAML source.
  */
 class YamlWriter(val config: Config) : Writer {
-    private val yaml = Yaml(
-        SafeConstructor(),
-        Representer(),
-        DumperOptions().apply {
-            defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
-            lineBreak = DumperOptions.LineBreak.getPlatformLineBreak()
-        }
-    )
 
     override fun toWriter(writer: java.io.Writer) {
         val nodeWriter = YamlTreeNodeWriter(writer, config.isEnabled(Feature.WRITE_DESCRIPTIONS_AS_COMMENTS))
@@ -70,12 +58,12 @@ private class YamlTreeNodeWriter(
 
     private fun writeIndent() {
         repeat(this.ident) {
-            this.writer.write(' '.toInt())
+            this.writer.write(' '.code)
         }
     }
 
     private fun write(char: Char) {
-        this.writer.write(char.toInt())
+        this.writer.write(char.code)
     }
 
     private fun write(string: String) {
@@ -183,8 +171,8 @@ private class YamlTreeNodeWriter(
     private fun hasTrailingWhitespace(s: String) = s.isNotEmpty() && (s.first() == ' ' || s.last() == ' ')
 
     private fun quoteValueIfNeeded(s: String): String {
-        if (s.isEmpty())
-            return s
+        if (s.isBlank())
+            return quoteString(s)
         if (s.last() == ':' || hasTrailingWhitespace(s) || hasQuoteChar(s))
             return quoteString(s)
         return s
@@ -205,9 +193,11 @@ private class YamlTreeNodeWriter(
                 write(' ')
                 writeValue(node)
             }
+
             is ListNode -> {
                 writeList(node)
             }
+
             else -> {
                 writeNewLine()
                 increaseIndent()
