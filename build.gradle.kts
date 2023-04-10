@@ -1,7 +1,8 @@
+
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URL
-import java.util.Properties
+import java.util.*
 
 val repositoryUrl by extra{ getPrivateProperty("repositoryUrl") }
 val repoUserToken by extra { getPrivateProperty("repoUserToken") }
@@ -54,7 +55,7 @@ allprojects {
     apply(plugin = "com.github.ben-manes.versions")
     apply(plugin = "org.jetbrains.dokka")
 
-    group = "com.uchuhimo"
+    group = "de.phyrone"
     version = "1.2.0-SNAPSHOT"
 
     repositories {
