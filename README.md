@@ -1,4 +1,4 @@
-this is a fork of https://github.com/uchuhimo/konf as the original project seems to be abandoned.
+this is a fork of https://github.com/uchuhimo/konf as the original project appears to be abandoned/inactive.
 I merged the open pull requests and fixed some bugs.
 # Konf
 
