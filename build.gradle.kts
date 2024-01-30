@@ -56,7 +56,7 @@ allprojects {
     apply(plugin = "org.jetbrains.dokka")
 
     group = "de.phyrone"
-    version = "1.2.5-SNAPSHOT"
+    version = "1.2.5"
 
     repositories {
         if (useAliyun) {
