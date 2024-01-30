@@ -12,7 +12,7 @@ val useAliyun by extra { shouldUseAliyun() }
 
 tasks.named<Wrapper>("wrapper") {
     group = "help"
-    gradleVersion = "8.0.1"
+    gradleVersion = "8.5"
     distributionType = Wrapper.DistributionType.ALL
 }
 
