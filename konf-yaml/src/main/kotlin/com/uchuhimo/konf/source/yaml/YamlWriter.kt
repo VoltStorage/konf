@@ -15,11 +15,12 @@
  */
 
 package com.uchuhimo.konf.source.yaml
+
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.Feature
-import com.uchuhimo.konf.ListNode
 import com.uchuhimo.konf.TreeNode
 import com.uchuhimo.konf.ValueNode
+import com.uchuhimo.konf.ListNode
 import com.uchuhimo.konf.source.Writer
 import java.io.OutputStream
 
@@ -174,6 +175,8 @@ private class YamlTreeNodeWriter(
         if (s.isBlank())
             return quoteString(s)
         if (s.last() == ':' || hasTrailingWhitespace(s) || hasQuoteChar(s))
+            return quoteString(s)
+        if (!s.first().isLetter())
             return quoteString(s)
         return s
     }
