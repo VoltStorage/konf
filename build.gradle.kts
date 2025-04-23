@@ -120,7 +120,7 @@ subprojects {
         maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
         val properties = Properties()
         properties.load(
-            rootProject.file("konf-core/src/test/kotlin/com/uchuhimo/konf/source/env/env.properties").inputStream(),
+            rootProject.file("konf-core/src/test/kotlin/com/voltstorage/konf/source/env/env.properties").inputStream(),
         )
         properties.forEach { key, value ->
             environment(key as String, value)
@@ -198,7 +198,7 @@ subprojects {
             reportUndocumented.set(false)
             sourceLink {
                 localDirectory.set(file("./"))
-                remoteUrl("https://github.com/uchuhimo/konf/blob/v${project.version}/")
+                remoteUrl("https://github.com/voltstorage/konf/blob/v${project.version}/")
                 remoteLineSuffix.set("#L")
             }
         }
@@ -224,7 +224,7 @@ subprojects {
     val projectGroup = project.group as String
     val projectName = if (project.name == "konf-all") "konf" else project.name
     val projectVersion = project.version as String
-    val projectUrl = "https://github.com/uchuhimo/konf"
+    val projectUrl = "https://github.com/voltstorage/konf"
 
     publishing {
         publications {
@@ -251,9 +251,9 @@ subprojects {
                     }
                     developers {
                         developer {
-                            id.set("uchuhimo")
-                            name.set("uchuhimo")
-                            email.set("uchuhimo@outlook.com")
+                            id.set("voltstorage")
+                            name.set("voltstorage")
+                            email.set("voltstorage@outlook.com")
                         }
                     }
                     scm {

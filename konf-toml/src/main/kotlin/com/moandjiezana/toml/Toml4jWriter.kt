@@ -20,9 +20,9 @@ import com.moandjiezana.toml.BooleanValueReaderWriter.BOOLEAN_VALUE_READER_WRITE
 import com.moandjiezana.toml.DateValueReaderWriter.DATE_VALUE_READER_WRITER
 import com.moandjiezana.toml.NumberValueReaderWriter.NUMBER_VALUE_READER_WRITER
 import com.moandjiezana.toml.StringValueReaderWriter.STRING_VALUE_READER_WRITER
-import com.uchuhimo.konf.ListNode
-import com.uchuhimo.konf.TreeNode
-import com.uchuhimo.konf.ValueNode
+import com.voltstorage.konf.ListNode
+import com.voltstorage.konf.TreeNode
+import com.voltstorage.konf.ValueNode
 import java.io.IOException
 import java.io.StringWriter
 import java.io.Writer
