@@ -34,7 +34,7 @@ import org.jetbrains.spek.api.dsl.on
 import org.jetbrains.spek.subject.SubjectSpek
 import org.jetbrains.spek.subject.itBehavesLike
 import spark.Service
-import java.net.URL
+import java.net.URI
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -50,41 +50,71 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
     given("a loader") {
         on("load from environment-like map") {
             val config = subject.envMap(mapOf("SOURCE_TEST_TYPE" to "env"))
-            it("should return a config which contains value from environment-like map") {
+            it(
+                "should return a config which contains value from environment-like map",
+            ) {
                 assertThat(config[item], equalTo("env"))
             }
         }
         on("load from system environment") {
             val config = subject.env()
-            it("should return a config which contains value from system environment") {
+            it(
+                "should return a config which contains value from system environment",
+            ) {
                 assertThat(config[item], equalTo("env"))
             }
         }
         on("load from system properties") {
-            System.setProperty(DefaultLoadersConfig.qualify(DefaultLoadersConfig.type), "system")
+            System.setProperty(
+                DefaultLoadersConfig.qualify(
+                    DefaultLoadersConfig.type,
+                ),
+                "system",
+            )
             val config = subject.systemProperties()
-            it("should return a config which contains value from system properties") {
+            it(
+                "should return a config which contains value from system properties",
+            ) {
                 assertThat(config[item], equalTo("system"))
             }
         }
         on("dispatch loader based on extension") {
-            it("should throw UnsupportedExtensionException when the extension is unsupported") {
-                assertThat({ subject.dispatchExtension("txt") }, throws<UnsupportedExtensionException>())
+            it(
+                "should throw UnsupportedExtensionException when the extension is unsupported",
+            ) {
+                assertThat(
+                    { subject.dispatchExtension("txt") },
+                    throws<UnsupportedExtensionException>(),
+                )
             }
-            it("should return the corresponding loader when the extension is registered") {
+            it(
+                "should return the corresponding loader when the extension is registered",
+            ) {
                 val extension = UUID.randomUUID().toString()
-                Provider.registerExtension(extension, PropertiesProvider)
+                Provider.registerExtension(
+                    extension,
+                    PropertiesProvider,
+                )
                 subject.dispatchExtension(extension)
                 Provider.unregisterExtension(extension)
             }
         }
         on("load from provider") {
-            val config = subject.source(PropertiesProvider).file(tempFileOf(propertiesContent, suffix = ".properties"))
+            val config =
+                subject.source(PropertiesProvider).file(
+                    tempFileOf(
+                        propertiesContent,
+                        suffix = ".properties",
+                    ),
+                )
             it("should load with the provider") {
                 assertThat(config[item], equalTo("properties"))
             }
             it("should build a new layer on the parent config") {
-                assertThat(config.parent!!, sameInstance(subject.config))
+                assertThat(
+                    config.parent!!,
+                    sameInstance(subject.config),
+                )
             }
         }
         on("load from URL") {
@@ -92,7 +122,10 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             service.port(0)
             service.get("/source.properties") { _, _ -> propertiesContent }
             service.awaitInitialization()
-            val config = subject.url(URL("http://localhost:${service.port()}/source.properties"))
+            val config =
+                subject.url(
+                    URI("http://localhost:${service.port()}/source.properties").toURL(),
+                )
             it("should load as auto-detected URL format") {
                 assertThat(config[item], equalTo("properties"))
             }
@@ -103,30 +136,58 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             service.port(0)
             service.get("/source.properties") { _, _ -> propertiesContent }
             service.awaitInitialization()
-            val config = subject.url("http://localhost:${service.port()}/source.properties")
+            val config =
+                subject.url(
+                    "http://localhost:${service.port()}/source.properties",
+                )
             it("should load as auto-detected URL format") {
                 assertThat(config[item], equalTo("properties"))
             }
             service.stop()
         }
         on("load from file") {
-            val config = subject.file(tempFileOf(propertiesContent, suffix = ".properties"))
+            val config =
+                subject.file(
+                    tempFileOf(
+                        propertiesContent,
+                        suffix = ".properties",
+                    ),
+                )
             it("should load as auto-detected file format") {
                 assertThat(config[item], equalTo("properties"))
             }
         }
         on("load from file path") {
-            val file = tempFileOf(propertiesContent, suffix = ".properties")
+            val file =
+                tempFileOf(
+                    propertiesContent,
+                    suffix = ".properties",
+                )
             val config = subject.file(file.path)
             it("should load as auto-detected file format") {
                 assertThat(config[item], equalTo("properties"))
             }
         }
         on("load from watched file") {
-            val file = tempFileOf(propertiesContent, suffix = ".properties")
-            val config = subject.watchFile(file, 1, unit = TimeUnit.SECONDS, context = Dispatchers.Sequential)
+            val file =
+                tempFileOf(
+                    propertiesContent,
+                    suffix = ".properties",
+                )
+            val config =
+                subject.watchFile(
+                    file,
+                    1,
+                    unit = TimeUnit.SECONDS,
+                    context = Dispatchers.Sequential,
+                )
             val originalValue = config[item]
-            file.writeText(propertiesContent.replace("properties", "newValue"))
+            file.writeText(
+                propertiesContent.replace(
+                    "properties",
+                    "newValue",
+                ),
+            )
             runBlocking(Dispatchers.Sequential) {
                 delay(TimeUnit.SECONDS.toMillis(1))
             }
@@ -139,10 +200,23 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             }
         }
         on("load from watched file with default delay time") {
-            val file = tempFileOf(propertiesContent, suffix = ".properties")
-            val config = subject.watchFile(file, context = Dispatchers.Sequential)
+            val file =
+                tempFileOf(
+                    propertiesContent,
+                    suffix = ".properties",
+                )
+            val config =
+                subject.watchFile(
+                    file,
+                    context = Dispatchers.Sequential,
+                )
             val originalValue = config[item]
-            file.writeText(propertiesContent.replace("properties", "newValue"))
+            file.writeText(
+                propertiesContent.replace(
+                    "properties",
+                    "newValue",
+                ),
+            )
             runBlocking(Dispatchers.Sequential) {
                 delay(TimeUnit.SECONDS.toMillis(5))
             }
@@ -155,17 +229,26 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             }
         }
         on("load from watched file with listener") {
-            val file = tempFileOf(propertiesContent, suffix = ".properties")
+            val file =
+                tempFileOf(
+                    propertiesContent,
+                    suffix = ".properties",
+                )
             var newValue = ""
             subject.watchFile(
                 file,
                 1,
                 unit = TimeUnit.SECONDS,
-                context = Dispatchers.Sequential
+                context = Dispatchers.Sequential,
             ) { config, _ ->
                 newValue = config[item]
             }
-            file.writeText(propertiesContent.replace("properties", "newValue"))
+            file.writeText(
+                propertiesContent.replace(
+                    "properties",
+                    "newValue",
+                ),
+            )
             runBlocking(Dispatchers.Sequential) {
                 delay(TimeUnit.SECONDS.toMillis(1))
             }
@@ -174,10 +257,25 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             }
         }
         on("load from watched file path") {
-            val file = tempFileOf(propertiesContent, suffix = ".properties")
-            val config = subject.watchFile(file.path, 1, unit = TimeUnit.SECONDS, context = Dispatchers.Sequential)
+            val file =
+                tempFileOf(
+                    propertiesContent,
+                    suffix = ".properties",
+                )
+            val config =
+                subject.watchFile(
+                    file.path,
+                    1,
+                    unit = TimeUnit.SECONDS,
+                    context = Dispatchers.Sequential,
+                )
             val originalValue = config[item]
-            file.writeText(propertiesContent.replace("properties", "newValue"))
+            file.writeText(
+                propertiesContent.replace(
+                    "properties",
+                    "newValue",
+                ),
+            )
             runBlocking(Dispatchers.Sequential) {
                 delay(TimeUnit.SECONDS.toMillis(1))
             }
@@ -190,10 +288,23 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             }
         }
         on("load from watched file path with default delay time") {
-            val file = tempFileOf(propertiesContent, suffix = ".properties")
-            val config = subject.watchFile(file.path, context = Dispatchers.Sequential)
+            val file =
+                tempFileOf(
+                    propertiesContent,
+                    suffix = ".properties",
+                )
+            val config =
+                subject.watchFile(
+                    file.path,
+                    context = Dispatchers.Sequential,
+                )
             val originalValue = config[item]
-            file.writeText(propertiesContent.replace("properties", "newValue"))
+            file.writeText(
+                propertiesContent.replace(
+                    "properties",
+                    "newValue",
+                ),
+            )
             runBlocking(Dispatchers.Sequential) {
                 delay(TimeUnit.SECONDS.toMillis(5))
             }
@@ -212,9 +323,19 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             service.get("/source.properties") { _, _ -> content }
             service.awaitInitialization()
             val url = "http://localhost:${service.port()}/source.properties"
-            val config = subject.watchUrl(URL(url), period = 1, unit = TimeUnit.SECONDS, context = Dispatchers.Sequential)
+            val config =
+                subject.watchUrl(
+                    URI(url).toURL(),
+                    period = 1,
+                    unit = TimeUnit.SECONDS,
+                    context = Dispatchers.Sequential,
+                )
             val originalValue = config[item]
-            content = propertiesContent.replace("properties", "newValue")
+            content =
+                propertiesContent.replace(
+                    "properties",
+                    "newValue",
+                )
             runBlocking(Dispatchers.Sequential) {
                 delay(TimeUnit.SECONDS.toMillis(1))
             }
@@ -233,9 +354,17 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             service.get("/source.properties") { _, _ -> content }
             service.awaitInitialization()
             val url = "http://localhost:${service.port()}/source.properties"
-            val config = subject.watchUrl(URL(url), context = Dispatchers.Sequential)
+            val config =
+                subject.watchUrl(
+                    URI(url).toURL(),
+                    context = Dispatchers.Sequential,
+                )
             val originalValue = config[item]
-            content = propertiesContent.replace("properties", "newValue")
+            content =
+                propertiesContent.replace(
+                    "properties",
+                    "newValue",
+                )
             runBlocking(Dispatchers.Sequential) {
                 delay(TimeUnit.SECONDS.toMillis(5))
             }
@@ -254,9 +383,19 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             service.get("/source.properties") { _, _ -> content }
             service.awaitInitialization()
             val url = "http://localhost:${service.port()}/source.properties"
-            val config = subject.watchUrl(url, period = 1, unit = TimeUnit.SECONDS, context = Dispatchers.Sequential)
+            val config =
+                subject.watchUrl(
+                    url,
+                    period = 1,
+                    unit = TimeUnit.SECONDS,
+                    context = Dispatchers.Sequential,
+                )
             val originalValue = config[item]
-            content = propertiesContent.replace("properties", "newValue")
+            content =
+                propertiesContent.replace(
+                    "properties",
+                    "newValue",
+                )
             runBlocking(Dispatchers.Sequential) {
                 delay(TimeUnit.SECONDS.toMillis(1))
             }
@@ -275,9 +414,17 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             service.get("/source.properties") { _, _ -> content }
             service.awaitInitialization()
             val url = "http://localhost:${service.port()}/source.properties"
-            val config = subject.watchUrl(url, context = Dispatchers.Sequential)
+            val config =
+                subject.watchUrl(
+                    url,
+                    context = Dispatchers.Sequential,
+                )
             val originalValue = config[item]
-            content = propertiesContent.replace("properties", "newValue")
+            content =
+                propertiesContent.replace(
+                    "properties",
+                    "newValue",
+                )
             runBlocking(Dispatchers.Sequential) {
                 delay(TimeUnit.SECONDS.toMillis(5))
             }
@@ -297,16 +444,21 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             service.awaitInitialization()
             val url = "http://localhost:${service.port()}/source.properties"
             var newValue = ""
-            val config = subject.watchUrl(
-                url,
-                period = 1,
-                unit = TimeUnit.SECONDS,
-                context = Dispatchers.Sequential
-            ) { config, _ ->
-                newValue = config[item]
-            }
+            val config =
+                subject.watchUrl(
+                    url,
+                    period = 1,
+                    unit = TimeUnit.SECONDS,
+                    context = Dispatchers.Sequential,
+                ) { config, _ ->
+                    newValue = config[item]
+                }
             val originalValue = config[item]
-            content = propertiesContent.replace("properties", "newValue")
+            content =
+                propertiesContent.replace(
+                    "properties",
+                    "newValue",
+                )
             runBlocking(Dispatchers.Sequential) {
                 delay(TimeUnit.SECONDS.toMillis(1))
             }
@@ -319,7 +471,10 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
         }
         on("load from map") {
             it("should use the same config") {
-                assertThat(subject.config, sameInstance(subject.map.config))
+                assertThat(
+                    subject.config,
+                    sameInstance(subject.map.config),
+                )
             }
         }
     }
@@ -328,11 +483,15 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
 object DefaultLoadersWithFlattenEnvSpec : Spek({
     given("a loader") {
         on("load as flatten format from system environment") {
-            val config = Config {
-                addSpec(FlattenDefaultLoadersConfig)
-            }.from.env(nested = false)
+            val config =
+                Config {
+                    addSpec(FlattenDefaultLoadersConfig)
+                }.from.env(nested = false)
             it("should return a config which contains value from system environment") {
-                assertThat(config[FlattenDefaultLoadersConfig.SOURCE_TEST_TYPE], equalTo("env"))
+                assertThat(
+                    config[FlattenDefaultLoadersConfig.SOURCE_TEST_TYPE],
+                    equalTo("env"),
+                )
             }
         }
     }

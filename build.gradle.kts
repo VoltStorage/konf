@@ -1,14 +1,10 @@
-
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.net.URL
 import java.util.*
 
-val repositoryUrl by extra{ getPrivateProperty("repositoryUrl") }
+val repositoryUrl by extra { getPrivateProperty("repositoryUrl") }
 val repoUserToken by extra { getPrivateProperty("repoUserToken") }
 val repoUserPassword by extra { getPrivateProperty("repoUserPassword") }
 val signPublications by extra { getPrivateProperty("signPublications") }
-val useAliyun by extra { shouldUseAliyun() }
 
 tasks.named<Wrapper>("wrapper") {
     group = "help"
@@ -18,55 +14,44 @@ tasks.named<Wrapper>("wrapper") {
 
 buildscript {
     repositories {
-        if (shouldUseAliyun()) {
-            aliyunMaven()
-        } else {
-            mavenCentral()
-        }
+        mavenCentral()
     }
 }
 
 plugins {
     java
     `java-test-fixtures`
-    //jacoco
+    jacoco
     `maven-publish`
     signing
-    kotlin("jvm") version Versions.kotlin
-    kotlin("plugin.allopen") version Versions.kotlin
-    id("com.dorongold.task-tree") version Versions.taskTree
-    id("me.champeau.gradle.jmh") version Versions.jmhPlugin
-    id("com.diffplug.spotless") version Versions.spotless
-    id("com.github.ben-manes.versions") version Versions.dependencyUpdate
-    id("org.jetbrains.dokka") version Versions.dokka
+    kotlin("jvm") version Versions.KOTLIN
+    kotlin("plugin.allopen") version Versions.KOTLIN
+    id("com.dorongold.task-tree") version Versions.TASK_TREE
+    id("me.champeau.jmh") version Versions.JMH_PLUGIN
+    id("com.diffplug.spotless") version Versions.SPOTLESS
+    id("com.github.ben-manes.versions") version Versions.DEPENDENCY_UPDATE
+    id("org.jetbrains.dokka") version Versions.DOKKA
 }
 
 allprojects {
     apply(plugin = "java")
     apply(plugin = "java-test-fixtures")
-    //apply(plugin = "jacoco")
+    apply(plugin = "jacoco")
     apply(plugin = "maven-publish")
     apply(plugin = "signing")
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "kotlin-allopen")
     apply(plugin = "com.dorongold.task-tree")
-    apply(plugin = "me.champeau.gradle.jmh")
+    apply(plugin = "me.champeau.jmh")
     apply(plugin = "com.diffplug.spotless")
     apply(plugin = "com.github.ben-manes.versions")
     apply(plugin = "org.jetbrains.dokka")
 
-    group = "de.phyrone"
-    version = "1.2.6"
+    group = "com.voltstorage"
+    version = "1.2.7"
 
     repositories {
-        if (useAliyun) {
-            aliyunMaven()
-        } else {
-            mavenCentral()
-        }
-        maven {
-            url = uri("https://kotlin.bintray.com/kotlinx")
-        }
+        mavenCentral()
     }
 
     val dependencyUpdates by tasks.existing(DependencyUpdatesTask::class)
@@ -94,35 +79,30 @@ subprojects {
     configurations.testImplementation.get().extendsFrom(configurations.testFixturesImplementation.get())
 
     dependencies {
-        api(kotlin("stdlib-jdk8", Versions.kotlin))
-        api("org.jetbrains.kotlinx", "kotlinx-coroutines-core", Versions.coroutines)
-        implementation(kotlin("reflect", Versions.kotlin))
-        implementation("org.reflections", "reflections", Versions.reflections)
-        implementation("org.apache.commons", "commons-text", Versions.commonsText)
+        api(kotlin("stdlib-jdk8", Versions.KOTLIN))
+        api("org.jetbrains.kotlinx", "kotlinx-coroutines-core", Versions.COROUTINES)
+        implementation(kotlin("reflect", Versions.KOTLIN))
+        implementation("org.reflections", "reflections", Versions.REFLECTIONS)
+        implementation("org.apache.commons", "commons-text", Versions.COMMONS_TEXT)
         arrayOf("core", "annotations", "databind").forEach { name ->
-            api(jacksonCore(name, Versions.jackson))
+            api(jacksonCore(name, Versions.JACKSON))
         }
-        implementation(jackson("module", "kotlin", Versions.jackson))
-        implementation(jackson("datatype", "jsr310", Versions.jackson))
+        implementation(jackson("module", "kotlin", Versions.JACKSON))
+        implementation(jackson("datatype", "jsr310", Versions.JACKSON))
 
-        testFixturesImplementation(kotlin("test", Versions.kotlin))
-        testFixturesImplementation("com.natpryce", "hamkrest", Versions.hamkrest)
-        testFixturesImplementation("org.hamcrest", "hamcrest-all", Versions.hamcrest)
-        testImplementation(junit("jupiter", "api", Versions.junit))
-        testImplementation("com.sparkjava", "spark-core", Versions.spark)
+        testFixturesImplementation(kotlin("test", Versions.KOTLIN))
+        testFixturesImplementation("com.natpryce", "hamkrest", Versions.HAMKREST)
+        testFixturesImplementation("org.hamcrest", "hamcrest-all", Versions.HAMCREST)
+        testImplementation(junit("jupiter", "api", Versions.JUNIT))
+        testImplementation("com.sparkjava", "spark-core", Versions.SPARK)
         arrayOf("api", "data-driven-extension", "subject-extension").forEach { name ->
-            testFixturesImplementation(spek(name, Versions.spek))
+            testFixturesImplementation(spek(name, Versions.SPEK))
         }
 
-        testRuntimeOnly(junit("platform", "launcher", Versions.junitPlatform))
-        testRuntimeOnly(junit("jupiter", "engine", Versions.junit))
-        testRuntimeOnly(spek("junit-platform-engine", Versions.spek))
-        testRuntimeOnly("org.slf4j", "slf4j-simple", Versions.slf4j)
-    }
-
-    java {
-        sourceCompatibility = Versions.java
-        targetCompatibility = Versions.java
+        testRuntimeOnly(junit("platform", "launcher", Versions.JUNIT_PLATFORM))
+        testRuntimeOnly(junit("jupiter", "engine", Versions.JUNIT))
+        testRuntimeOnly(spek("junit-platform-engine", Versions.SPEK))
+        testRuntimeOnly("org.slf4j", "slf4j-simple", Versions.SLF4J)
     }
 
     val test by tasks.existing(Test::class)
@@ -140,7 +120,7 @@ subprojects {
         maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
         val properties = Properties()
         properties.load(
-            rootProject.file("konf-core/src/test/kotlin/com/uchuhimo/konf/source/env/env.properties").inputStream()
+            rootProject.file("konf-core/src/test/kotlin/com/uchuhimo/konf/source/env/env.properties").inputStream(),
         )
         properties.forEach { key, value ->
             environment(key as String, value)
@@ -151,15 +131,8 @@ subprojects {
         options.encoding = "UTF-8"
     }
 
-    tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = Versions.java.toString()
-            //apiVersion = Versions.kotlinApi.toString()
-            //languageVersion = Versions.kotlinLanguage.toString()
-            //jvmTarget = Versions.java.toString()
-            //apiVersion = Versions.kotlinApi
-            //languageVersion = Versions.kotlinLanguage
-        }
+    kotlin {
+        jvmToolchain(Versions.JAVA)
     }
 
     allOpen {
@@ -168,72 +141,70 @@ subprojects {
     }
 
     jmh {
-        //jvmArgs = ["-Djmh.separateClasspathJAR=true"]
+        // jvmArgs = ["-Djmh.separateClasspathJAR=true"]
         iterations = 10 // Number of measurement iterations to do.
-        //benchmarkMode = ["thrpt"] // Benchmark mode. Available modes are: [Throughput/thrpt, AverageTime/avgt, SampleTime/sample, SingleShotTime/ss, All/all]
+        // benchmarkMode = ["thrpt"] // Benchmark mode. Available modes are: [Throughput/thrpt, AverageTime/avgt, SampleTime/sample, SingleShotTime/ss, All/all]
         batchSize = 1
         // Batch size: number of benchmark method calls per operation. (some benchmark modes can ignore this setting)
-        fork = 1 // How many times to forks a single benchmark. Use 0 to disable forking altogether
-        //operationsPerInvocation = 1 // Operations per invocation.
-        timeOnIteration = "1s" // Time to spend at each measurement iteration.
+        fork = 1 // How many times to fork a single benchmark. Use 0 to disable forking altogether
+        // operationsPerInvocation = 1 // Operations per invocation.
+        timeOnIteration = "1s" // Time to spend on each measurement iteration.
         threads = 4 // Number of worker threads to run with.
-        timeout = "10s" // Timeout for benchmark iteration.
-        //timeUnit = "ns" // Output time unit. Available time units are: [m, s, ms, us, ns].
+        jmhTimeout = "10s" // Timeout for benchmark iteration.
+        // timeUnit = "ns" // Output time unit. Available time units are: [m, s, ms, us, ns].
         verbosity = "NORMAL" // Verbosity mode. Available modes are: [SILENT, NORMAL, EXTRA]
         warmup = "1s" // Time to spend at each warmup iteration.
         warmupBatchSize = 1 // Warmup batch size: number of benchmark method calls per operation.
-        //warmupForks = 0 // How many warmup forks to make for a single benchmark. 0 to disable warmup forks.
+        // warmupForks = 0 // How many warmup forks to make for a single benchmark. 0 to disable warmup forks.
         warmupIterations = 10 // Number of warmup iterations to do.
-        isZip64 = false // Use ZIP64 format for bigger archives
-        jmhVersion = Versions.jmh // Specifies JMH version
+        zip64 = false // Use ZIP64 format for bigger archives
+        jmhVersion = Versions.JMH // Specifies JMH version
     }
 
     spotless {
         java {
-            googleJavaFormat(Versions.googleJavaFormat)
+            googleJavaFormat(Versions.GOOGLE_JAVA_FORMAT)
             trimTrailingWhitespace()
             endWithNewline()
             licenseHeaderFile(rootProject.file("config/spotless/apache-license-2.0.java"))
         }
         kotlin {
-            ktlint(Versions.ktlint)
+            ktlint(Versions.KTLINT)
             trimTrailingWhitespace()
             endWithNewline()
             licenseHeaderFile(rootProject.file("config/spotless/apache-license-2.0.kt"))
         }
     }
 
-    /*
     jacoco {
-        toolVersion = Versions.jacoco
+        toolVersion = Versions.JACOCO
     }
-     */
 
-    /*val jacocoTestReport by tasks.existing(JacocoReport::class) {
+    val jacocoTestReport by tasks.existing(JacocoReport::class) {
         reports {
-            //xml.isEnabled = true
+            // xml.isEnabled = true
             xml.required.set(true)
-            //html.isEnabled = true
+            // html.isEnabled = true
             html.required.set(true)
         }
-    }*/
-
-    val check by tasks.existing {
-        //dependsOn(jacocoTestReport)
     }
 
-    tasks.dokkaHtml {
-        outputDirectory.set(tasks.javadoc.get().destinationDir)
-        dokkaSourceSets {
-            configureEach {
-                jdkVersion.set(11)
-                reportUndocumented.set(false)
-                sourceLink {
-                    localDirectory.set(file("./"))
-                    remoteUrl.set(URL("https://github.com/uchuhimo/konf/blob/v${project.version}/"))
-                    remoteLineSuffix.set("#L")
-                }
+    val check by tasks.existing {
+        dependsOn(jacocoTestReport)
+    }
+
+    dokka {
+        dokkaSourceSets.configureEach {
+            reportUndocumented.set(false)
+            sourceLink {
+                localDirectory.set(file("./"))
+                remoteUrl("https://github.com/uchuhimo/konf/blob/v${project.version}/")
+                remoteLineSuffix.set("#L")
             }
+        }
+
+        dokkaPublications.html {
+            outputDirectory.set(tasks.javadoc.get().destinationDir)
         }
     }
 
@@ -244,10 +215,11 @@ subprojects {
 
     val javadocJar by tasks.registering(Jar::class) {
         archiveClassifier.set("javadoc")
-        from(tasks.dokkaHtml)
+        from(dokka)
     }
 
-    val projectDescription = "A type-safe cascading configuration library for Kotlin/Java, " +
+    val projectDescription =
+        "A type-safe cascading configuration library for Kotlin/Java, " +
             "supporting most configuration formats"
     val projectGroup = project.group as String
     val projectName = if (project.name == "konf-all") "konf" else project.name
@@ -274,7 +246,7 @@ subprojects {
                     licenses {
                         license {
                             name.set("The Apache Software License, Version 2.0")
-                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                            url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
                         }
                     }
                     developers {
@@ -291,13 +263,7 @@ subprojects {
             }
         }
         repositories {
-            maven {
-                url = uri(repositoryUrl)
-                credentials {
-                    username = repoUserToken
-                    password = repoUserPassword
-                }
-            }
+            mavenCentral()
         }
     }
 

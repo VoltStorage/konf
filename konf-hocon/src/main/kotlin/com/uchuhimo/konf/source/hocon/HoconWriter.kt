@@ -32,11 +32,11 @@ import java.io.OutputStream
  * Writer for HOCON source.
  */
 class HoconWriter(val config: Config) : Writer {
-
-    private val renderOpts = ConfigRenderOptions.defaults()
-        .setOriginComments(false)
-        .setComments(false)
-        .setJson(false)
+    private val renderOpts =
+        ConfigRenderOptions.defaults()
+            .setOriginComments(false)
+            .setComments(false)
+            .setJson(false)
 
     override fun toWriter(writer: java.io.Writer) {
         writer.write(toText())
@@ -49,24 +49,26 @@ class HoconWriter(val config: Config) : Writer {
     }
 
     private fun TreeNode.toConfigValue(): ConfigValue {
-        val value = when (this) {
-            is ValueNode -> ConfigValueFactory.fromAnyRef(value)
-            is ListNode -> ConfigValueFactory.fromIterable(list.map { it.toConfigValue() })
-            else -> ConfigValueFactory.fromMap(children.mapValues { (_, value) -> value.toConfigValue() })
-        }
+        val value =
+            when (this) {
+                is ValueNode -> ConfigValueFactory.fromAnyRef(value)
+                is ListNode -> ConfigValueFactory.fromIterable(list.map { it.toConfigValue() })
+                else -> ConfigValueFactory.fromMap(children.mapValues { (_, value) -> value.toConfigValue() })
+            }
         val comments = comments
-        if (comments != null) {
+        if (comments.isNotEmpty()) {
             return value.withOrigin(value.origin().withComments(comments.split("\n")))
         }
         return value
     }
 
     override fun toText(): String {
-        val output = if (config.isEnabled(Feature.WRITE_DESCRIPTIONS_AS_COMMENTS)) {
-            config.toTree().toConfigValue().render(renderOpts.setComments(true))
-        } else {
-            ConfigValueFactory.fromMap(config.toHierarchicalMap()).render(renderOpts)
-        }
+        val output =
+            if (config.isEnabled(Feature.WRITE_DESCRIPTIONS_AS_COMMENTS)) {
+                config.toTree().toConfigValue().render(renderOpts.setComments(true))
+            } else {
+                ConfigValueFactory.fromMap(config.toHierarchicalMap()).render(renderOpts)
+            }
         return output.replace("\n", System.lineSeparator())
     }
 }

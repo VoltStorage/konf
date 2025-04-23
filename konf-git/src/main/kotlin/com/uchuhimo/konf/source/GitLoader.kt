@@ -19,7 +19,7 @@ package com.uchuhimo.konf.source
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.tempDirectory
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Constants
@@ -41,12 +41,11 @@ fun Loader.git(
     file: String,
     dir: String? = null,
     branch: String = Constants.HEAD,
-    optional: Boolean = this.optional
-): Config =
-    config.withSource(provider.git(repo, file, dir, branch, optional))
+    optional: Boolean = this.optional,
+): Config = config.withSource(provider.git(repo, file, dir, branch, optional))
 
 /**
- * Returns a child config containing values from a specified git repository,
+ * Returns a child config containing values from a specified git repository
  * and reloads values periodically.
  *
  * @param repo git repository
@@ -54,7 +53,7 @@ fun Loader.git(
  * @param dir local directory of the git repository
  * @param branch the initial branch
  * @param period reload period. The default value is 1.
- * @param unit time unit of reload period. The default value is [TimeUnit.MINUTES].
+ * @param unit time unit of the reload period. The default value is [TimeUnit.MINUTES].
  * @param context context of the coroutine. The default value is [Dispatchers.Default].
  * @param optional whether the source is optional
  * @param onLoad function invoked after the updated git file is loaded
@@ -69,7 +68,7 @@ fun Loader.watchGit(
     unit: TimeUnit = TimeUnit.MINUTES,
     context: CoroutineContext = Dispatchers.Default,
     optional: Boolean = this.optional,
-    onLoad: ((config: Config, source: Source) -> Unit)? = null
+    onLoad: ((config: Config, source: Source) -> Unit)? = null,
 ): Config {
     return (dir ?: tempDirectory(prefix = "local_git_repo").path).let { directory ->
         provider.git(repo, file, directory, branch, optional).let { source ->
@@ -78,7 +77,7 @@ fun Loader.watchGit(
                     load(source)
                 }
                 onLoad?.invoke(newConfig, source)
-                GlobalScope.launch(context) {
+                MainScope().launch(context) {
                     while (true) {
                         delay(unit.toMillis(period))
                         val newSource = provider.git(repo, file, directory, branch, optional)
