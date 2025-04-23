@@ -48,7 +48,7 @@ sealed class Item<T>(
      */
     val description: String = "",
     type: JavaType? = null,
-    val nullable: Boolean = false
+    val nullable: Boolean = false,
 ) {
     init {
         checkPath(name)
@@ -65,8 +65,9 @@ sealed class Item<T>(
      * Type of value that can be associated with this item.
      */
     @Suppress("LeakingThis")
-    val type: JavaType = type ?: TypeFactory.defaultInstance().constructType(this::class.java)
-        .findSuperType(Item::class.java).bindings.typeParameters[0]
+    val type: JavaType =
+        type ?: TypeFactory.defaultInstance().constructType(this::class.java)
+            .findSuperType(Item::class.java).bindings.typeParameters[0]
 
     /**
      * Whether this is a required item or not.
@@ -154,14 +155,20 @@ sealed class Item<T>(
         }
     }
 
-    fun notifyBeforeSet(config: Config, value: Any?) {
+    fun notifyBeforeSet(
+        config: Config,
+        value: Any?,
+    ) {
         for (beforeSetFunction in beforeSetFunctions) {
             @Suppress("UNCHECKED_CAST")
             beforeSetFunction(config, value as T)
         }
     }
 
-    fun notifyAfterSet(config: Config, value: Any?) {
+    fun notifyAfterSet(
+        config: Config,
+        value: Any?,
+    ) {
         for (afterSetFunction in afterSetFunctions) {
             @Suppress("UNCHECKED_CAST")
             afterSetFunction(config, value as T)
@@ -223,15 +230,17 @@ fun checkPath(path: String) {
  *
  * Required item must be set with value before retrieved in config.
  */
-open class RequiredItem<T> @JvmOverloads constructor(
-    spec: Spec,
-    name: String,
-    description: String = "",
-    type: JavaType? = null,
-    nullable: Boolean = false
-) : Item<T>(spec, name, description, type, nullable) {
-    override val isRequired: Boolean = true
-}
+open class RequiredItem<T>
+    @JvmOverloads
+    constructor(
+        spec: Spec,
+        name: String,
+        description: String = "",
+        type: JavaType? = null,
+        nullable: Boolean = false,
+    ) : Item<T>(spec, name, description, type, nullable) {
+        override val isRequired: Boolean = true
+    }
 
 /**
  * Optional item with default value.
@@ -239,25 +248,27 @@ open class RequiredItem<T> @JvmOverloads constructor(
  * Before associated with specified value, default value will be returned when accessing.
  * After associated with specified value, the specified value will be returned when accessing.
  */
-open class OptionalItem<T> @JvmOverloads constructor(
-    spec: Spec,
-    name: String,
-    /**
-     * Default value returned before associating this item with specified value.
-     */
-    val default: T,
-    description: String = "",
-    type: JavaType? = null,
-    nullable: Boolean = false
-) : Item<T>(spec, name, description, type, nullable) {
-    init {
-        if (!nullable) {
-            requireNotNull<Any>(default)
+open class OptionalItem<T>
+    @JvmOverloads
+    constructor(
+        spec: Spec,
+        name: String,
+        /**
+         * Default value returned before associating this item with specified value.
+         */
+        val default: T,
+        description: String = "",
+        type: JavaType? = null,
+        nullable: Boolean = false,
+    ) : Item<T>(spec, name, description, type, nullable) {
+        init {
+            if (!nullable) {
+                requireNotNull<Any>(default)
+            }
         }
-    }
 
-    override val isOptional: Boolean = true
-}
+        override val isOptional: Boolean = true
+    }
 
 /**
  * Lazy item evaluated value every time from thunk before associated with specified value.
@@ -267,20 +278,22 @@ open class OptionalItem<T> @JvmOverloads constructor(
  * Returned value of the thunk will not be cached. The thunk will be evaluated every time
  * when needed to reflect modifying of other values in config.
  */
-open class LazyItem<T> @JvmOverloads constructor(
-    spec: Spec,
-    name: String,
-    /**
-     * Thunk used to evaluate value for this item.
-     *
-     * [ItemContainer] is provided as evaluation environment to avoid unexpected modification
-     * to config.
-     * Thunk will be evaluated every time when needed to reflect modifying of other values in config.
-     */
-    val thunk: (config: ItemContainer) -> T,
-    description: String = "",
-    type: JavaType? = null,
-    nullable: Boolean = false
-) : Item<T>(spec, name, description, type, nullable) {
-    override val isLazy: Boolean = true
-}
+open class LazyItem<T>
+    @JvmOverloads
+    constructor(
+        spec: Spec,
+        name: String,
+        /**
+         * Thunk used to evaluate value for this item.
+         *
+         * [ItemContainer] is provided as evaluation environment to avoid unexpected modification
+         * to config.
+         * Thunk will be evaluated every time when needed to reflect modifying of other values in config.
+         */
+        val thunk: (config: ItemContainer) -> T,
+        description: String = "",
+        type: JavaType? = null,
+        nullable: Boolean = false,
+    ) : Item<T>(spec, name, description, type, nullable) {
+        override val isLazy: Boolean = true
+    }

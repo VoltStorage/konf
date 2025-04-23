@@ -44,48 +44,52 @@ object YamlSourceLoadSpec : SubjectSpek<Config>({
 
     given("a config") {
         on("load a YAML with an int key") {
-            val config = Config().from.yaml.string(
-                """
-                tree:
-                  1:
-                    myVal: true
-                """.trimIndent()
-            )
+            val config =
+                Config().from.yaml.string(
+                    """
+                    tree:
+                      1:
+                        myVal: true
+                    """.trimIndent(),
+                )
             it("should treat it as a string key") {
                 assertTrue { config.at("tree.1.myVal").toValue() }
             }
         }
         on("load a YAML with a long key") {
-            val config = Config().from.yaml.string(
-                """
-                tree:
-                  2147483648:
-                    myVal: true
-                """.trimIndent()
-            )
+            val config =
+                Config().from.yaml.string(
+                    """
+                    tree:
+                      2147483648:
+                        myVal: true
+                    """.trimIndent(),
+                )
             it("should treat it as a string key") {
                 assertTrue { config.at("tree.2147483648.myVal").toValue() }
             }
         }
         on("load a YAML with a BigInteger key") {
-            val config = Config().from.yaml.string(
-                """
-                tree:
-                  9223372036854775808:
-                    myVal: true
-                """.trimIndent()
-            )
+            val config =
+                Config().from.yaml.string(
+                    """
+                    tree:
+                      9223372036854775808:
+                        myVal: true
+                    """.trimIndent(),
+                )
             it("should treat it as a string key") {
                 assertTrue { config.at("tree.9223372036854775808.myVal").toValue() }
             }
         }
         on("load a YAML with a top-level list") {
-            val config = Config().from.yaml.string(
-                """
-                - a
-                - b
-                """.trimIndent()
-            )
+            val config =
+                Config().from.yaml.string(
+                    """
+                    - a
+                    - b
+                    """.trimIndent(),
+                )
             it("should treat it as a list") {
                 assertThat(config.toValue(), equalTo(listOf("a", "b")))
             }
@@ -96,9 +100,10 @@ object YamlSourceLoadSpec : SubjectSpek<Config>({
 object YamlSourceReloadSpec : SubjectSpek<Config>({
 
     subject {
-        val config = Config {
-            addSpec(ConfigForLoad)
-        }.from.yaml.resource("source/source.yaml")
+        val config =
+            Config {
+                addSpec(ConfigForLoad)
+            }.from.yaml.resource("source/source.yaml")
         val yaml = config.toYaml.toText()
         Config {
             addSpec(ConfigForLoad)

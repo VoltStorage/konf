@@ -28,9 +28,10 @@ object DefaultLoadersConfig : ConfigSpec("source.test") {
     val type by required<String>()
 }
 
-fun Source.toConfig(): Config = Config {
-    addSpec(DefaultLoadersConfig)
-}.withSource(this)
+fun Source.toConfig(): Config =
+    Config {
+        addSpec(DefaultLoadersConfig)
+    }.withSource(this)
 
 inline fun <reified T : Any> assertCausedBy(noinline block: () -> Unit) {
     @Suppress("UNCHECKED_CAST")
@@ -39,10 +40,10 @@ inline fun <reified T : Any> assertCausedBy(noinline block: () -> Unit) {
         throws(
             has(
                 LoadException::cause,
-                isA<T>() as Matcher<Throwable?>
-            )
-        )
+                isA<T>() as Matcher<Throwable?>,
+            ),
+        ),
     )
 }
 
-const val propertiesContent = "source.test.type = properties"
+const val PROPERTIES_CONTENT = "source.test.type = properties"

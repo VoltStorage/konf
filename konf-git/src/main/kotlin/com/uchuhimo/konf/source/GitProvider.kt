@@ -41,7 +41,7 @@ fun Provider.git(
     file: String,
     dir: String? = null,
     branch: String = Constants.HEAD,
-    optional: Boolean = false
+    optional: Boolean = false,
 ): Source {
     return (dir?.let(::File) ?: tempDirectory(prefix = "local_git_repo")).let { directory ->
         val extendContext: Source.() -> Unit = {
@@ -60,8 +60,9 @@ fun Provider.git(
             } else {
                 Git.open(directory).use { git ->
                     val uri = URIish(repo)
-                    val remoteName = git.remoteList().call().firstOrNull { it.urIs.contains(uri) }?.name
-                        ?: throw InvalidRemoteRepoException(repo, directory.path)
+                    val remoteName =
+                        git.remoteList().call().firstOrNull { it.urIs.contains(uri) }?.name
+                            ?: throw InvalidRemoteRepoException(repo, directory.path)
                     git.pull().apply {
                         remote = remoteName
                         remoteBranchName = branch

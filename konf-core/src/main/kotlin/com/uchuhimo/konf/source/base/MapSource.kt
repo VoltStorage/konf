@@ -29,7 +29,7 @@ import com.uchuhimo.konf.source.SourceInfo
 open class MapSource(
     val map: Map<String, Any>,
     type: String = "",
-    info: SourceInfo = SourceInfo()
+    info: SourceInfo = SourceInfo(),
 ) : ValueSource(map, type.notEmptyOr("map"), info)
 
 /**

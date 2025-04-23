@@ -31,16 +31,18 @@ import com.fasterxml.jackson.databind.type.CollectionType
 import com.fasterxml.jackson.databind.type.MapType
 
 object EmptyStringToCollectionDeserializerModifier : BeanDeserializerModifier() {
-
     override fun modifyMapDeserializer(
         config: DeserializationConfig?,
         type: MapType?,
         beanDesc: BeanDescription?,
-        deserializer: JsonDeserializer<*>
+        deserializer: JsonDeserializer<*>,
     ): JsonDeserializer<*>? =
         object : JsonDeserializer<Map<Any, Any>>(), ContextualDeserializer, ResolvableDeserializer {
             @Suppress("UNCHECKED_CAST")
-            override fun deserialize(jp: JsonParser, ctx: DeserializationContext?): Map<Any, Any>? {
+            override fun deserialize(
+                jp: JsonParser,
+                ctx: DeserializationContext?,
+            ): Map<Any, Any>? {
                 if (!jp.isExpectedStartArrayToken && jp.hasToken(JsonToken.VALUE_STRING) && jp.text.isEmpty()) {
                     return deserializer.getEmptyValue(ctx) as Map<Any, Any>?
                 }
@@ -49,14 +51,14 @@ object EmptyStringToCollectionDeserializerModifier : BeanDeserializerModifier() 
 
             override fun createContextual(
                 ctx: DeserializationContext?,
-                property: BeanProperty?
+                property: BeanProperty?,
             ): JsonDeserializer<*>? =
                 modifyMapDeserializer(
                     config,
                     type,
                     beanDesc,
                     (deserializer as ContextualDeserializer)
-                        .createContextual(ctx, property)
+                        .createContextual(ctx, property),
                 )
 
             override fun resolve(ctx: DeserializationContext?) {
@@ -68,11 +70,14 @@ object EmptyStringToCollectionDeserializerModifier : BeanDeserializerModifier() 
         config: DeserializationConfig?,
         type: CollectionType?,
         beanDesc: BeanDescription?,
-        deserializer: JsonDeserializer<*>
+        deserializer: JsonDeserializer<*>,
     ): JsonDeserializer<*>? =
         object : JsonDeserializer<Collection<Any>>(), ContextualDeserializer {
             @Suppress("UNCHECKED_CAST")
-            override fun deserialize(jp: JsonParser, ctx: DeserializationContext?): Collection<Any>? {
+            override fun deserialize(
+                jp: JsonParser,
+                ctx: DeserializationContext?,
+            ): Collection<Any>? {
                 if (!jp.isExpectedStartArrayToken && jp.hasToken(JsonToken.VALUE_STRING) && jp.text.isEmpty()) {
                     return deserializer.getEmptyValue(ctx) as Collection<Any>?
                 }
@@ -81,14 +86,14 @@ object EmptyStringToCollectionDeserializerModifier : BeanDeserializerModifier() 
 
             override fun createContextual(
                 ctx: DeserializationContext?,
-                property: BeanProperty?
+                property: BeanProperty?,
             ): JsonDeserializer<*>? =
                 modifyCollectionDeserializer(
                     config,
                     type,
                     beanDesc,
                     (deserializer as ContextualDeserializer)
-                        .createContextual(ctx, property)
+                        .createContextual(ctx, property),
                 )
         }
 
@@ -96,11 +101,14 @@ object EmptyStringToCollectionDeserializerModifier : BeanDeserializerModifier() 
         config: DeserializationConfig?,
         valueType: ArrayType?,
         beanDesc: BeanDescription?,
-        deserializer: JsonDeserializer<*>
+        deserializer: JsonDeserializer<*>,
     ): JsonDeserializer<*> =
         object : JsonDeserializer<Any>(), ContextualDeserializer {
             @Suppress("UNCHECKED_CAST")
-            override fun deserialize(jp: JsonParser, ctx: DeserializationContext?): Any? {
+            override fun deserialize(
+                jp: JsonParser,
+                ctx: DeserializationContext?,
+            ): Any? {
                 if (!jp.isExpectedStartArrayToken && jp.hasToken(JsonToken.VALUE_STRING) && jp.text.isEmpty()) {
                     val emptyValue = deserializer.getEmptyValue(ctx)
                     return if (emptyValue is Array<*>) {
@@ -114,14 +122,14 @@ object EmptyStringToCollectionDeserializerModifier : BeanDeserializerModifier() 
 
             override fun createContextual(
                 ctx: DeserializationContext?,
-                property: BeanProperty?
+                property: BeanProperty?,
             ): JsonDeserializer<*>? =
                 modifyArrayDeserializer(
                     config,
                     valueType,
                     beanDesc,
                     (deserializer as ContextualDeserializer)
-                        .createContextual(ctx, property)
+                        .createContextual(ctx, property),
                 )
         }
 }

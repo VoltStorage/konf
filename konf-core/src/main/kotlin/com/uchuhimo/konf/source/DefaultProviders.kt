@@ -23,6 +23,7 @@ import com.uchuhimo.konf.source.env.EnvProvider
 import com.uchuhimo.konf.source.json.JsonProvider
 import com.uchuhimo.konf.source.properties.PropertiesProvider
 import java.io.File
+import java.net.URI
 import java.net.URL
 
 /**
@@ -70,8 +71,10 @@ object DefaultProviders {
      * @param source the source description for error message
      * @return the corresponding provider based on extension
      */
-    fun dispatchExtension(extension: String, source: String = ""): Provider =
-        Provider.of(extension) ?: throw UnsupportedExtensionException(source)
+    fun dispatchExtension(
+        extension: String,
+        source: String = "",
+    ): Provider = Provider.of(extension) ?: throw UnsupportedExtensionException(source)
 
     /**
      * Returns a source from specified file.
@@ -92,7 +95,10 @@ object DefaultProviders {
      * @return a source from specified file
      * @throws UnsupportedExtensionException
      */
-    fun file(file: File, optional: Boolean = false): Source = dispatchExtension(file.extension, file.name).file(file, optional)
+    fun file(
+        file: File,
+        optional: Boolean = false,
+    ): Source = dispatchExtension(file.extension, file.name).file(file, optional)
 
     /**
      * Returns a source from specified file path.
@@ -113,7 +119,10 @@ object DefaultProviders {
      * @return a source from specified file path
      * @throws UnsupportedExtensionException
      */
-    fun file(file: String, optional: Boolean = false): Source = file(File(file), optional)
+    fun file(
+        file: String,
+        optional: Boolean = false,
+    ): Source = file(File(file), optional)
 
     /**
      * Returns a source from specified url.
@@ -134,8 +143,10 @@ object DefaultProviders {
      * @return a source from specified url
      * @throws UnsupportedExtensionException
      */
-    fun url(url: URL, optional: Boolean = false): Source =
-        dispatchExtension(File(url.path).extension, url.toString()).url(url, optional)
+    fun url(
+        url: URL,
+        optional: Boolean = false,
+    ): Source = dispatchExtension(File(url.path).extension, url.toString()).url(url, optional)
 
     /**
      * Returns a source from specified url string.
@@ -156,7 +167,10 @@ object DefaultProviders {
      * @return a source from specified url string
      * @throws UnsupportedExtensionException
      */
-    fun url(url: String, optional: Boolean = false): Source = url(URL(url), optional)
+    fun url(
+        url: String,
+        optional: Boolean = false,
+    ): Source = url(URI(url).toURL(), optional)
 }
 
 /**
@@ -164,26 +178,26 @@ object DefaultProviders {
  */
 object DefaultMapProviders {
     /**
-     * Returns a source from specified hierarchical map.
+     * Returns a source from the specified hierarchical map.
      *
      * @param map a hierarchical map
-     * @return a source from specified hierarchical map
+     * @return a source from the specified hierarchical map
      */
     fun hierarchical(map: Map<String, Any>): Source = MapSource(map)
 
     /**
-     * Returns a source from specified map in key-value format.
+     * Returns a source from the specified map in key-value format.
      *
      * @param map a map in key-value format
-     * @return a source from specified map in key-value format
+     * @return a source from the specified map in key-value format
      */
     fun kv(map: Map<String, Any>): Source = KVSource(map)
 
     /**
-     * Returns a source from specified map in flat format.
+     * Returns a source from the specified map in flat format.
      *
      * @param map a map in flat format
-     * @return a source from specified map in flat format
+     * @return a source from the specified map in flat format
      */
     fun flat(map: Map<String, String>): Source = FlatSource(map)
 }

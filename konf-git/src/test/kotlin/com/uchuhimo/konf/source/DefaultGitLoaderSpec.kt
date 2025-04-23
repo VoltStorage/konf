@@ -47,7 +47,7 @@ object DefaultGitLoaderSpec : SubjectSpek<DefaultLoaders>({
                 Git.init().apply {
                     setDirectory(dir)
                 }.call().use { git ->
-                    Paths.get(dir.path, "source.properties").toFile().writeText(propertiesContent)
+                    Paths.get(dir.path, "source.properties").toFile().writeText(PROPERTIES_CONTENT)
                     git.add().apply {
                         addFilepattern("source.properties")
                     }.call()
@@ -70,7 +70,7 @@ object DefaultGitLoaderSpec : SubjectSpek<DefaultLoaders>({
                     "source.properties",
                     period = 1,
                     unit = TimeUnit.SECONDS,
-                    context = Dispatchers.Sequential
+                    context = Dispatchers.Sequential,
                 )
             },
             "load from watched git repository to the given directory" to { loader: DefaultLoaders, repo: String ->
@@ -81,9 +81,9 @@ object DefaultGitLoaderSpec : SubjectSpek<DefaultLoaders>({
                     branch = Constants.HEAD,
                     unit = TimeUnit.SECONDS,
                     context = Dispatchers.Sequential,
-                    optional = false
+                    optional = false,
                 )
-            }
+            },
         ).forEach { (description, func) ->
             on(description) {
                 tempDirectory(prefix = "remote_git_repo", suffix = ".git").let { dir ->
@@ -91,7 +91,7 @@ object DefaultGitLoaderSpec : SubjectSpek<DefaultLoaders>({
                     Git.init().apply {
                         setDirectory(dir)
                     }.call().use { git ->
-                        file.writeText(propertiesContent)
+                        file.writeText(PROPERTIES_CONTENT)
                         git.add().apply {
                             addFilepattern("source.properties")
                         }.call()
@@ -103,7 +103,7 @@ object DefaultGitLoaderSpec : SubjectSpek<DefaultLoaders>({
                     val repo = dir.toURI()
                     val config = func(subject, repo.toString())
                     val originalValue = config[item]
-                    file.writeText(propertiesContent.replace("properties", "newValue"))
+                    file.writeText(PROPERTIES_CONTENT.replace("properties", "newValue"))
                     Git.open(dir).use { git ->
                         git.add().apply {
                             addFilepattern("source.properties")
@@ -132,7 +132,7 @@ object DefaultGitLoaderSpec : SubjectSpek<DefaultLoaders>({
                 Git.init().apply {
                     setDirectory(dir)
                 }.call().use { git ->
-                    file.writeText(propertiesContent)
+                    file.writeText(PROPERTIES_CONTENT)
                     git.add().apply {
                         addFilepattern("source.properties")
                     }.call()
@@ -143,17 +143,18 @@ object DefaultGitLoaderSpec : SubjectSpek<DefaultLoaders>({
                 }
                 val repo = dir.toURI()
                 var newValue = ""
-                val config = subject.watchGit(
-                    repo.toString(),
-                    "source.properties",
-                    period = 1,
-                    unit = TimeUnit.SECONDS,
-                    context = Dispatchers.Sequential
-                ) { config, _ ->
-                    newValue = config[item]
-                }
+                val config =
+                    subject.watchGit(
+                        repo.toString(),
+                        "source.properties",
+                        period = 1,
+                        unit = TimeUnit.SECONDS,
+                        context = Dispatchers.Sequential,
+                    ) { config, _ ->
+                        newValue = config[item]
+                    }
                 val originalValue = config[item]
-                file.writeText(propertiesContent.replace("properties", "newValue"))
+                file.writeText(PROPERTIES_CONTENT.replace("properties", "newValue"))
                 Git.open(dir).use { git ->
                     git.add().apply {
                         addFilepattern("source.properties")

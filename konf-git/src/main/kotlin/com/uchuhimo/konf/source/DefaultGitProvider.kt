@@ -46,6 +46,7 @@ fun DefaultProviders.git(
     file: String,
     dir: String? = null,
     branch: String = Constants.HEAD,
-    optional: Boolean = false
-): Source = dispatchExtension(File(file).extension, "{repo: $repo, file: $file}")
-    .git(repo, file, dir, branch, optional)
+    optional: Boolean = false,
+): Source =
+    dispatchExtension(File(file).extension, "{repo: $repo, file: $file}")
+        .git(repo, file, dir, branch, optional)

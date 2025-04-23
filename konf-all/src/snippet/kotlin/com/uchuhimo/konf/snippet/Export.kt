@@ -36,8 +36,9 @@ fun main(args: Array<String>) {
     }
     val file = tempFile(suffix = ".json")
     config.toJson.toFile(file)
-    val newConfig = Config {
-        addSpec(Server)
-    }.from.json.file(file)
+    val newConfig =
+        Config {
+            addSpec(Server)
+        }.from.json.file(file)
     check(config.toMap() == newConfig.toMap())
 }

@@ -86,12 +86,13 @@ object DrillDownMultiLayerConfigSpec : SubjectSpek<Config>({
 object MultiLayerFacadeDrillDownConfigSpec : SubjectSpek<Config>({
     subject {
         (
-            Config() + Config {
-                addSpec(NetworkBuffer)
-            }.withLayer("layer1")
-                .at("network")
-                .withLayer("layer2")
-            ).withLayer("layer3")
+            Config() +
+                Config {
+                    addSpec(NetworkBuffer)
+                }.withLayer("layer1")
+                    .at("network")
+                    .withLayer("layer2")
+        ).withLayer("layer3")
     }
 
     configTestSpec("buffer")
@@ -103,9 +104,9 @@ object MultiLayerRollUpFallbackConfigSpec : SubjectSpek<Config>({
             (
                 Prefix("prefix") +
                     Config { addSpec(NetworkBuffer) }.withLayer("layer1")
-                ).withLayer("layer2") +
+            ).withLayer("layer2") +
                 Config()
-            ).withLayer("layer3")
+        ).withLayer("layer3")
     }
 
     configTestSpec("prefix.network.buffer")

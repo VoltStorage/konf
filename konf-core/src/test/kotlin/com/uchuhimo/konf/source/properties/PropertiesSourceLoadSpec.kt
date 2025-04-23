@@ -38,10 +38,11 @@ object PropertiesSourceLoadSpec : SubjectSpek<Config>({
 object PropertiesSourceReloadSpec : SubjectSpek<Config>({
 
     subject {
-        val config = Config {
-            addSpec(ConfigForLoad)
-            addSpec(FlatConfigForLoad)
-        }.from.properties.resource("source/source.properties")
+        val config =
+            Config {
+                addSpec(ConfigForLoad)
+                addSpec(FlatConfigForLoad)
+            }.from.properties.resource("source/source.properties")
         val properties = config.toProperties.toText()
         Config {
             addSpec(ConfigForLoad)

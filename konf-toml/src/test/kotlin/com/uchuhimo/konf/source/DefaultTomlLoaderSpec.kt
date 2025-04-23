@@ -36,7 +36,7 @@ object DefaultTomlLoaderSpec : SubjectSpek<DefaultLoaders>({
 
     given("a loader") {
         on("load from TOML file") {
-            val config = subject.file(tempFileOf(tomlContent, suffix = ".toml"))
+            val config = subject.file(tempFileOf(TOML_CONTENT, suffix = ".toml"))
             it("should load as auto-detected file format") {
                 assertThat(config[item], equalTo("toml"))
             }

@@ -70,7 +70,7 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                 it("should use the feature's default setting") {
                     assertThat(
                         subject.isEnabled(Feature.FAIL_ON_UNKNOWN_PATH),
-                        equalTo(Feature.FAIL_ON_UNKNOWN_PATH.enabledByDefault)
+                        equalTo(Feature.FAIL_ON_UNKNOWN_PATH.enabledByDefault),
                     )
                 }
             }
@@ -79,38 +79,43 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
             on("load source when subscriber is defined") {
                 var loadFunction: (source: Source) -> Unit = {}
                 var counter = 0
-                val config = subject.withLoadTrigger("") { _, load ->
-                    loadFunction = load
-                }.withLayer()
+                val config =
+                    subject.withLoadTrigger("") { _, load ->
+                        loadFunction = load
+                    }.withLayer()
                 val source = mapOf(qualify(type.name) to NetworkBuffer.Type.ON_HEAP).asKVSource()
-                val handler1 = config.beforeLoad {
-                    counter += 1
-                    it("should contain the old value") {
-                        assertThat(it, equalTo(source))
-                        assertThat(config[type], equalTo(NetworkBuffer.Type.OFF_HEAP))
+                val handler1 =
+                    config.beforeLoad {
+                        counter += 1
+                        it("should contain the old value") {
+                            assertThat(it, equalTo(source))
+                            assertThat(config[type], equalTo(NetworkBuffer.Type.OFF_HEAP))
+                        }
                     }
-                }
-                val handler2 = config.beforeLoad {
-                    counter += 1
-                    it("should contain the old value") {
-                        assertThat(it, equalTo(source))
-                        assertThat(config[type], equalTo(NetworkBuffer.Type.OFF_HEAP))
+                val handler2 =
+                    config.beforeLoad {
+                        counter += 1
+                        it("should contain the old value") {
+                            assertThat(it, equalTo(source))
+                            assertThat(config[type], equalTo(NetworkBuffer.Type.OFF_HEAP))
+                        }
                     }
-                }
-                val handler3 = config.afterLoad {
-                    counter += 1
-                    it("should contain the new value") {
-                        assertThat(it, equalTo(source))
-                        assertThat(config[type], equalTo(NetworkBuffer.Type.ON_HEAP))
+                val handler3 =
+                    config.afterLoad {
+                        counter += 1
+                        it("should contain the new value") {
+                            assertThat(it, equalTo(source))
+                            assertThat(config[type], equalTo(NetworkBuffer.Type.ON_HEAP))
+                        }
                     }
-                }
-                val handler4 = config.afterLoad {
-                    counter += 1
-                    it("should contain the new value") {
-                        assertThat(it, equalTo(source))
-                        assertThat(config[type], equalTo(NetworkBuffer.Type.ON_HEAP))
+                val handler4 =
+                    config.afterLoad {
+                        counter += 1
+                        it("should contain the new value") {
+                            assertThat(it, equalTo(source))
+                            assertThat(config[type], equalTo(NetworkBuffer.Type.ON_HEAP))
+                        }
                     }
-                }
                 loadFunction(source)
                 handler1.close()
                 handler2.close()
@@ -123,9 +128,10 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
         }
         group("addSpec operation") {
             on("add orthogonal spec") {
-                val newSpec = object : ConfigSpec(spec.prefix) {
-                    val minSize by optional(1)
-                }
+                val newSpec =
+                    object : ConfigSpec(spec.prefix) {
+                        val minSize by optional(1)
+                    }
                 val config = subject.withSource(mapOf(newSpec.qualify(newSpec.minSize) to 2).asKVSource())
                 config.addSpec(newSpec)
                 it("should contain items in new spec") {
@@ -197,42 +203,45 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                         throws(
                             has(
                                 RepeatedItemException::name,
-                                equalTo(spec.qualify(size))
-                            )
-                        )
+                                equalTo(spec.qualify(size)),
+                            ),
+                        ),
                     )
                 }
             }
             on("add repeated name") {
-                val newSpec = ConfigSpec(prefix).apply {
-                    @Suppress("UNUSED_VARIABLE", "NAME_SHADOWING")
-                    val size by required<Int>()
-                }
+                val newSpec =
+                    ConfigSpec(prefix).apply {
+                        @Suppress("UNUSED_VARIABLE", "NAME_SHADOWING")
+                        val size by required<Int>()
+                    }
                 it("should throw NameConflictException") {
                     assertThat({ subject.addSpec(newSpec) }, throws<NameConflictException>())
                 }
             }
             on("add conflict name, which is prefix of existed name") {
-                val newSpec = ConfigSpec().apply {
-                    @Suppress("UNUSED_VARIABLE")
-                    val buffer by required<Int>()
-                }
+                val newSpec =
+                    ConfigSpec().apply {
+                        @Suppress("UNUSED_VARIABLE")
+                        val buffer by required<Int>()
+                    }
                 it("should throw NameConflictException") {
                     assertThat(
                         {
                             subject.addSpec(
-                                newSpec.withPrefix(prefix.toPath().let { it.subList(0, it.size - 1) }.name)
+                                newSpec.withPrefix(prefix.toPath().let { it.subList(0, it.size - 1) }.name),
                             )
                         },
-                        throws<NameConflictException>()
+                        throws<NameConflictException>(),
                     )
                 }
             }
             on("add conflict name, and an existed name is prefix of it") {
-                val newSpec = ConfigSpec(qualify(type.name)).apply {
-                    @Suppress("UNUSED_VARIABLE")
-                    val subType by required<Int>()
-                }
+                val newSpec =
+                    ConfigSpec(qualify(type.name)).apply {
+                        @Suppress("UNUSED_VARIABLE")
+                        val subType by required<Int>()
+                    }
                 it("should throw NameConflictException") {
                     assertThat({ subject.addSpec(newSpec) }, throws<NameConflictException>())
                 }
@@ -259,9 +268,9 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                         throws(
                             has(
                                 RepeatedItemException::name,
-                                equalTo(qualify(size.name))
-                            )
-                        )
+                                equalTo(qualify(size.name)),
+                            ),
+                        ),
                     )
                 }
             }
@@ -279,10 +288,10 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                         {
                             subject.addItem(
                                 buffer,
-                                prefix.toPath().let { it.subList(0, it.size - 1) }.name
+                                prefix.toPath().let { it.subList(0, it.size - 1) }.name,
                             )
                         },
-                        throws<NameConflictException>()
+                        throws<NameConflictException>(),
                     )
                 }
             }
@@ -311,9 +320,9 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                         mapOf<String, Any>(
                             qualify(name.name) to "buffer",
                             qualify(type.name) to NetworkBuffer.Type.OFF_HEAP.name,
-                            qualify(offset.name) to "null"
-                        )
-                    )
+                            qualify(offset.name) to "null",
+                        ),
+                    ),
                 )
             }
             it("should contain corresponding items in map") {
@@ -329,9 +338,9 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                             qualify(maxSize.name) to 8,
                             qualify(name.name) to "buffer",
                             qualify(type.name) to NetworkBuffer.Type.ON_HEAP.name,
-                            qualify(offset.name) to 0
-                        )
-                    )
+                            qualify(offset.name) to 0,
+                        ),
+                    ),
                 )
             }
             it("should recover all items when reloaded from map") {
@@ -349,13 +358,16 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
             }
         }
         on("export values to hierarchical map") {
-            fun prefixToMap(prefix: String, value: Map<String, Any>): Map<String, Any> {
+            fun prefixToMap(
+                prefix: String,
+                value: Map<String, Any>,
+            ): Map<String, Any> {
                 return when {
                     prefix.isEmpty() -> value
                     prefix.contains('.') ->
                         mapOf<String, Any>(
                             prefix.substring(0, prefix.indexOf('.')) to
-                                prefixToMap(prefix.substring(prefix.indexOf('.') + 1), value)
+                                prefixToMap(prefix.substring(prefix.indexOf('.') + 1), value),
                         )
                     else -> mapOf(prefix to value)
                 }
@@ -369,10 +381,10 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                             mapOf(
                                 "name" to "buffer",
                                 "type" to NetworkBuffer.Type.OFF_HEAP.name,
-                                "offset" to "null"
-                            )
-                        )
-                    )
+                                "offset" to "null",
+                            ),
+                        ),
+                    ),
                 )
             }
             it("should contain corresponding items in map") {
@@ -390,10 +402,10 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                                 "maxSize" to 8,
                                 "name" to "buffer",
                                 "type" to NetworkBuffer.Type.ON_HEAP.name,
-                                "offset" to 0
-                            )
-                        )
-                    )
+                                "offset" to 0,
+                            ),
+                        ),
+                    ),
                 )
             }
             it("should recover all items when reloaded from map") {
@@ -411,11 +423,12 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
             }
         }
         on("object methods") {
-            val map = mapOf(
-                qualify(name.name) to "buffer",
-                qualify(type.name) to NetworkBuffer.Type.OFF_HEAP.name,
-                qualify(offset.name) to "null"
-            )
+            val map =
+                mapOf(
+                    qualify(name.name) to "buffer",
+                    qualify(type.name) to NetworkBuffer.Type.OFF_HEAP.name,
+                    qualify(offset.name) to "null",
+                )
             it("should not equal to object of other class") {
                 assertFalse(subject.equals(1))
             }
@@ -446,7 +459,7 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                 it("should throw NoSuchItemException when using `get`") {
                     assertThat(
                         { subject[invalidItem] },
-                        throws(has(NoSuchItemException::name, equalTo(invalidItem.asName)))
+                        throws(has(NoSuchItemException::name, equalTo(invalidItem.asName))),
                     )
                 }
                 it("should return null when using `getOrNull`") {
@@ -475,9 +488,9 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                         throws(
                             has(
                                 NoSuchItemException::name,
-                                equalTo(qualify(invalidItem.name))
-                            )
-                        )
+                                equalTo(qualify(invalidItem.name)),
+                            ),
+                        ),
                     )
                 }
                 it("should return null when using `getOrNull`") {
@@ -492,18 +505,18 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                         throws(
                             has(
                                 UnsetValueException::name,
-                                equalTo(size.asName)
-                            )
-                        )
+                                equalTo(size.asName),
+                            ),
+                        ),
                     )
                     assertThat(
                         { subject[maxSize] },
                         throws(
                             has(
                                 UnsetValueException::name,
-                                equalTo(size.asName)
-                            )
-                        )
+                                equalTo(size.asName),
+                            ),
+                        ),
                     )
                     assertTrue { size in subject }
                     assertTrue { maxSize in subject }
@@ -552,7 +565,7 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
             on("set with valid item when corresponding value is lazy") {
                 test(
                     "before set, the item should be lazy; after set," +
-                        " the item should be no longer lazy, and it contains the specified value"
+                        " the item should be no longer lazy, and it contains the specified value",
                 ) {
                     subject[size] = 1024
                     assertThat(subject[maxSize], equalTo(subject[size] * 2))
@@ -567,7 +580,7 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                 it("should throw NoSuchItemException") {
                     assertThat(
                         { subject[invalidItem] = 1024 },
-                        throws(has(NoSuchItemException::name, equalTo(invalidItem.asName)))
+                        throws(has(NoSuchItemException::name, equalTo(invalidItem.asName))),
                     )
                 }
             }
@@ -587,7 +600,7 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                 it("should throw NoSuchItemException") {
                     assertThat(
                         { subject[invalidItemName] = 1024 },
-                        throws(has(NoSuchItemException::name, equalTo(invalidItemName)))
+                        throws(has(NoSuchItemException::name, equalTo(invalidItemName))),
                     )
                 }
             }
@@ -601,36 +614,40 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                 val childConfig = subject.withLayer()
                 subject[size] = 1
                 var counter = 0
-                val handler1 = childConfig.beforeSet { item, value ->
-                    counter += 1
-                    it("should contain the old value") {
-                        assertThat(item, equalTo(size))
-                        assertThat(value, equalTo(2))
-                        assertThat(childConfig[size], equalTo(1))
+                val handler1 =
+                    childConfig.beforeSet { item, value ->
+                        counter += 1
+                        it("should contain the old value") {
+                            assertThat(item, equalTo(size))
+                            assertThat(value, equalTo(2))
+                            assertThat(childConfig[size], equalTo(1))
+                        }
                     }
-                }
-                val handler2 = childConfig.beforeSet { item, value ->
-                    counter += 1
-                    it("should contain the old value") {
-                        assertThat(item, equalTo(size))
-                        assertThat(value, equalTo(2))
-                        assertThat(childConfig[size], equalTo(1))
+                val handler2 =
+                    childConfig.beforeSet { item, value ->
+                        counter += 1
+                        it("should contain the old value") {
+                            assertThat(item, equalTo(size))
+                            assertThat(value, equalTo(2))
+                            assertThat(childConfig[size], equalTo(1))
+                        }
                     }
-                }
-                val handler3 = size.beforeSet { _, value ->
-                    counter += 1
-                    it("should contain the old value") {
-                        assertThat(value, equalTo(2))
-                        assertThat(childConfig[size], equalTo(1))
+                val handler3 =
+                    size.beforeSet { _, value ->
+                        counter += 1
+                        it("should contain the old value") {
+                            assertThat(value, equalTo(2))
+                            assertThat(childConfig[size], equalTo(1))
+                        }
                     }
-                }
-                val handler4 = size.beforeSet { _, value ->
-                    counter += 1
-                    it("should contain the old value") {
-                        assertThat(value, equalTo(2))
-                        assertThat(childConfig[size], equalTo(1))
+                val handler4 =
+                    size.beforeSet { _, value ->
+                        counter += 1
+                        it("should contain the old value") {
+                            assertThat(value, equalTo(2))
+                            assertThat(childConfig[size], equalTo(1))
+                        }
                     }
-                }
                 subject[size] = 2
                 handler1.close()
                 handler2.close()
@@ -644,36 +661,40 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                 val childConfig = subject.withLayer()
                 subject[size] = 1
                 var counter = 0
-                val handler1 = childConfig.afterSet { item, value ->
-                    counter += 1
-                    it("should contain the new value") {
-                        assertThat(item, equalTo(size))
-                        assertThat(value, equalTo(2))
-                        assertThat(childConfig[size], equalTo(2))
+                val handler1 =
+                    childConfig.afterSet { item, value ->
+                        counter += 1
+                        it("should contain the new value") {
+                            assertThat(item, equalTo(size))
+                            assertThat(value, equalTo(2))
+                            assertThat(childConfig[size], equalTo(2))
+                        }
                     }
-                }
-                val handler2 = childConfig.afterSet { item, value ->
-                    counter += 1
-                    it("should contain the new value") {
-                        assertThat(item, equalTo(size))
-                        assertThat(value, equalTo(2))
-                        assertThat(childConfig[size], equalTo(2))
+                val handler2 =
+                    childConfig.afterSet { item, value ->
+                        counter += 1
+                        it("should contain the new value") {
+                            assertThat(item, equalTo(size))
+                            assertThat(value, equalTo(2))
+                            assertThat(childConfig[size], equalTo(2))
+                        }
                     }
-                }
-                val handler3 = size.afterSet { _, value ->
-                    counter += 1
-                    it("should contain the new value") {
-                        assertThat(value, equalTo(2))
-                        assertThat(childConfig[size], equalTo(2))
+                val handler3 =
+                    size.afterSet { _, value ->
+                        counter += 1
+                        it("should contain the new value") {
+                            assertThat(value, equalTo(2))
+                            assertThat(childConfig[size], equalTo(2))
+                        }
                     }
-                }
-                val handler4 = size.afterSet { _, value ->
-                    counter += 1
-                    it("should contain the new value") {
-                        assertThat(value, equalTo(2))
-                        assertThat(childConfig[size], equalTo(2))
+                val handler4 =
+                    size.afterSet { _, value ->
+                        counter += 1
+                        it("should contain the new value") {
+                            assertThat(value, equalTo(2))
+                            assertThat(childConfig[size], equalTo(2))
+                        }
                     }
-                }
                 subject[size] = 2
                 handler1.close()
                 handler2.close()
@@ -720,7 +741,7 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                 it("should throw NoSuchItemException") {
                     assertThat(
                         { subject.lazySet(invalidItem) { 1024 } },
-                        throws(has(NoSuchItemException::name, equalTo(invalidItem.asName)))
+                        throws(has(NoSuchItemException::name, equalTo(invalidItem.asName))),
                     )
                 }
             }
@@ -748,7 +769,7 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                 it("should throw NoSuchItemException") {
                     assertThat(
                         { subject.lazySet(invalidItemName) { 1024 } },
-                        throws(has(NoSuchItemException::name, equalTo(invalidItemName)))
+                        throws(has(NoSuchItemException::name, equalTo(invalidItemName))),
                     )
                 }
             }
@@ -762,7 +783,7 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                 it("should throw NoSuchItemException") {
                     assertThat(
                         { subject.unset(invalidItem) },
-                        throws(has(NoSuchItemException::name, equalTo(invalidItem.asName)))
+                        throws(has(NoSuchItemException::name, equalTo(invalidItem.asName))),
                     )
                 }
             }
@@ -776,7 +797,7 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                 it("should throw NoSuchItemException") {
                     assertThat(
                         { subject.unset(invalidItemName) },
-                        throws(has(NoSuchItemException::name, equalTo(invalidItemName)))
+                        throws(has(NoSuchItemException::name, equalTo(invalidItemName))),
                     )
                 }
             }
@@ -814,7 +835,7 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                     {
                         subject.validateRequired()
                     },
-                    throws<UnsetValueException>()
+                    throws<UnsetValueException>(),
                 )
             }
             it("should return itself when all required items have values") {
@@ -840,7 +861,7 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                             @Suppress("UNUSED_VARIABLE")
                             var nameProperty by subject.property(invalidItem)
                         },
-                        throws(has(NoSuchItemException::name, equalTo(invalidItem.asName)))
+                        throws(has(NoSuchItemException::name, equalTo(invalidItem.asName))),
                     )
                 }
             }
@@ -861,7 +882,7 @@ fun SubjectProviderDsl<Config>.configTestSpec(prefix: String = "network.buffer")
                             @Suppress("UNUSED_VARIABLE")
                             var nameProperty by subject.property<Int>(invalidItemName)
                         },
-                        throws(has(NoSuchItemException::name, equalTo(invalidItemName)))
+                        throws(has(NoSuchItemException::name, equalTo(invalidItemName))),
                     )
                 }
             }

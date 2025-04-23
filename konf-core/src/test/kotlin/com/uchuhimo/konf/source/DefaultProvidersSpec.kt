@@ -99,7 +99,7 @@ object DefaultProvidersSpec : SubjectSpek<DefaultProviders>({
         on("provide source from URL") {
             val service = Service.ignite()
             service.port(0)
-            service.get("/source.properties") { _, _ -> propertiesContent }
+            service.get("/source.properties") { _, _ -> PROPERTIES_CONTENT }
             service.awaitInitialization()
             val config =
                 subject.url(
@@ -118,7 +118,7 @@ object DefaultProvidersSpec : SubjectSpek<DefaultProviders>({
         on("provide source from URL string") {
             val service = Service.ignite()
             service.port(0)
-            service.get("/source.properties") { _, _ -> propertiesContent }
+            service.get("/source.properties") { _, _ -> PROPERTIES_CONTENT }
             service.awaitInitialization()
             val config =
                 subject.url(
@@ -136,7 +136,7 @@ object DefaultProvidersSpec : SubjectSpek<DefaultProviders>({
             val config =
                 subject.file(
                     tempFileOf(
-                        propertiesContent,
+                        PROPERTIES_CONTENT,
                         suffix = ".properties",
                     ),
                 ).toConfig()
@@ -150,7 +150,7 @@ object DefaultProvidersSpec : SubjectSpek<DefaultProviders>({
         on("provide source from file path") {
             val file =
                 tempFileOf(
-                    propertiesContent,
+                    PROPERTIES_CONTENT,
                     suffix = ".properties",
                 )
             val config = subject.file(file.path).toConfig()

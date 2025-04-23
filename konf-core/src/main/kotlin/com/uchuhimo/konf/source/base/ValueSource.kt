@@ -28,7 +28,7 @@ import com.uchuhimo.konf.source.asTree
 open class ValueSource(
     val value: Any,
     type: String = "",
-    final override val info: SourceInfo = SourceInfo()
+    final override val info: SourceInfo = SourceInfo(),
 ) : Source {
     init {
         info["type"] = type.notEmptyOr("value")

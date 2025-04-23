@@ -25,17 +25,19 @@ fun main(args: Array<String>) {
     val config = Config { addSpec(Server) }
     config[Server.tcpPort] = 1000
     val map = config.toMap()
-    val newMap = tempFile().run {
-        ObjectOutputStream(outputStream()).use {
-            it.writeObject(map)
+    val newMap =
+        tempFile().run {
+            ObjectOutputStream(outputStream()).use {
+                it.writeObject(map)
+            }
+            ObjectInputStream(inputStream()).use {
+                @Suppress("UNCHECKED_CAST")
+                it.readObject() as Map<String, Any>
+            }
         }
-        ObjectInputStream(inputStream()).use {
-            @Suppress("UNCHECKED_CAST")
-            it.readObject() as Map<String, Any>
-        }
-    }
-    val newConfig = Config {
-        addSpec(Server)
-    }.from.map.kv(newMap)
+    val newConfig =
+        Config {
+            addSpec(Server)
+        }.from.map.kv(newMap)
     check(config.toMap() == newConfig.toMap())
 }

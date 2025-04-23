@@ -55,7 +55,7 @@ object JsonProviderSpec : SubjectSpek<JsonProvider>({
             it("should return an empty source") {
                 assertThat(
                     subject.file(file).tree.children,
-                    equalTo(mutableMapOf())
+                    equalTo(mutableMapOf()),
                 )
             }
         }

@@ -38,23 +38,24 @@ open class FlatSource(
     val map: Map<String, String>,
     type: String = "",
     final override val info: SourceInfo = SourceInfo(),
-    private val allowConflict: Boolean = false
+    private val allowConflict: Boolean = false,
 ) : Source {
     init {
         info["type"] = type.notEmptyOr("flat")
     }
 
-    override val tree: TreeNode = ContainerNode(mutableMapOf()).apply {
-        map.forEach { (path, value) ->
-            try {
-                set(path, value.asTree())
-            } catch (ex: PathConflictException) {
-                if (!allowConflict) {
-                    throw ex
+    override val tree: TreeNode =
+        ContainerNode(mutableMapOf()).apply {
+            map.forEach { (path, value) ->
+                try {
+                    set(path, value.asTree())
+                } catch (ex: PathConflictException) {
+                    if (!allowConflict) {
+                        throw ex
+                    }
                 }
             }
-        }
-    }.promoteToList()
+        }.promoteToList()
 }
 
 object EmptyStringNode : SubstitutableNode, ListNode {
@@ -63,6 +64,7 @@ object EmptyStringNode : SubstitutableNode, ListNode {
     override val originalValue: Any? = null
     override val substituted: Boolean = false
     override var comments: String = ""
+
     override fun substitute(value: String): TreeNode {
         check(value.isEmpty())
         return this
@@ -73,32 +75,37 @@ class SingleStringListNode(
     override val value: String,
     override val substituted: Boolean = false,
     override val originalValue: Any? = null,
-    override var comments: String = ""
+    override var comments: String = "",
 ) : SubstitutableNode, ListNode {
-    override val children: MutableMap<String, TreeNode> = Collections.unmodifiableMap(
-        mutableMapOf("0" to value.asTree())
-    )
+    override val children: MutableMap<String, TreeNode> =
+        Collections.unmodifiableMap(
+            mutableMapOf("0" to value.asTree()),
+        )
     override val list: List<TreeNode> = listOf(value.asTree())
-    override fun substitute(value: String): TreeNode = value.promoteToList(
-        true,
-        originalValue
-            ?: this.value
-    )
+
+    override fun substitute(value: String): TreeNode =
+        value.promoteToList(
+            true,
+            originalValue
+                ?: this.value,
+        )
 }
 
 class ListStringNode(
     override val value: String,
     override val substituted: Boolean = false,
     override val originalValue: Any? = null,
-    override var comments: String = ""
+    override var comments: String = "",
 ) : ListSourceNode(value.split(',').map { ValueSourceNode(it) }, comments = comments), SubstitutableNode {
-    override fun substitute(value: String): TreeNode =
-        value.promoteToList(true, originalValue ?: this.value)
+    override fun substitute(value: String): TreeNode = value.promoteToList(true, originalValue ?: this.value)
 
     override val children: MutableMap<String, TreeNode> get() = super<ListSourceNode>.children
 }
 
-fun String.promoteToList(substitute: Boolean = false, originalValue: Any? = null): TreeNode {
+fun String.promoteToList(
+    substitute: Boolean = false,
+    originalValue: Any? = null,
+): TreeNode {
     return when {
         ',' in this -> ListStringNode(this, substitute, originalValue)
         this == "" -> EmptyStringNode
@@ -117,12 +124,13 @@ fun ContainerNode.promoteToList(): TreeNode {
             }
         }
     }
-    val list = generateSequence(0) { it + 1 }.map {
-        val key = it.toString()
-        if (key in children) key else null
-    }.takeWhile {
-        it != null
-    }.filterNotNull().toList()
+    val list =
+        generateSequence(0) { it + 1 }.map {
+            val key = it.toString()
+            if (key in children) key else null
+        }.takeWhile {
+            it != null
+        }.filterNotNull().toList()
     if (list.isNotEmpty() && list.toSet() == children.keys) {
         return ListSourceNode(list.map { children[it]!! })
     } else {
@@ -138,7 +146,10 @@ fun ContainerNode.promoteToList(): TreeNode {
  * `config.from.map.flat(map)`.
  */
 fun Config.toFlatMap(): Map<String, String> {
-    fun MutableMap<String, String>.putFlat(key: String, value: Any) {
+    fun MutableMap<String, String>.putFlat(
+        key: String,
+        value: Any,
+    ) {
         when (value) {
             is List<*> -> {
                 if (value.isNotEmpty()) {

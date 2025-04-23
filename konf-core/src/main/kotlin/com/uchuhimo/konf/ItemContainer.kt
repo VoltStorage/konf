@@ -115,9 +115,10 @@ interface ItemContainer : Iterable<Item<*>> {
      * List of items in this item container.
      */
     val items: List<Item<*>>
-        get() = mutableListOf<Item<*>>().apply {
-            addAll(this@ItemContainer.iterator().asSequence())
-        }
+        get() =
+            mutableListOf<Item<*>>().apply {
+                addAll(this@ItemContainer.iterator().asSequence())
+            }
 
     /**
      * List of qualified names of items in this item container.

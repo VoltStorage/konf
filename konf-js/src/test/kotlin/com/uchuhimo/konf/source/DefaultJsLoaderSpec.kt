@@ -36,7 +36,7 @@ object DefaultJsLoaderSpec : SubjectSpek<DefaultLoaders>({
 
     given("a loader") {
         on("load from JavaScript file") {
-            val config = subject.file(tempFileOf(jsContent, suffix = ".js"))
+            val config = subject.file(tempFileOf(JS_CONTENT, suffix = ".js"))
             it("should load as auto-detected file format") {
                 assertThat(config[item], equalTo("js"))
             }
@@ -45,7 +45,7 @@ object DefaultJsLoaderSpec : SubjectSpek<DefaultLoaders>({
 })
 
 //language=JavaScript
-const val jsContent =
+const val JS_CONTENT =
     """
 ({
   source: {

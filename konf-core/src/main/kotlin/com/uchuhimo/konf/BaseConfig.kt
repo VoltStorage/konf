@@ -62,7 +62,7 @@ open class BaseConfig(
     private val afterSetFunctions: MutableList<(item: Item<*>, value: Any?) -> Unit> = mutableListOf(),
     private val beforeLoadFunctions: MutableList<(source: Source) -> Unit> = mutableListOf(),
     private val afterLoadFunctions: MutableList<(source: Source) -> Unit> = mutableListOf(),
-    private val lock: ReentrantReadWriteLock = ReentrantReadWriteLock()
+    private val lock: ReentrantReadWriteLock = ReentrantReadWriteLock(),
 ) : Config {
     private val _source: Value<Source> = Value(EmptyMapSource())
     open val source: Source get() = _source.value
@@ -82,15 +82,16 @@ open class BaseConfig(
                 specsInLayer = specsInLayer,
                 featuresInLayer = featuresInLayer,
                 nodeByItem = nodeByItem,
-                tree = tree.getOrNull(path) ?: ContainerNode.placeHolder().also {
-                    lock.write { tree[path] = it }
-                },
+                tree =
+                    tree.getOrNull(path) ?: ContainerNode.placeHolder().also {
+                        lock.write { tree[path] = it }
+                    },
                 hasChildren = hasChildren,
                 beforeSetFunctions = beforeSetFunctions,
                 afterSetFunctions = afterSetFunctions,
                 beforeLoadFunctions = beforeLoadFunctions,
                 afterLoadFunctions = afterLoadFunctions,
-                lock = lock
+                lock = lock,
             ) {
                 override val source: Source
                     get() {
@@ -115,16 +116,20 @@ open class BaseConfig(
                 specsInLayer = specsInLayer,
                 featuresInLayer = featuresInLayer,
                 nodeByItem = nodeByItem,
-                tree = if (prefix.isEmpty()) tree
-                else ContainerNode.empty().apply {
-                    set(prefix, tree)
-                },
+                tree =
+                    if (prefix.isEmpty()) {
+                        tree
+                    } else {
+                        ContainerNode.empty().apply {
+                            set(prefix, tree)
+                        }
+                    },
                 hasChildren = hasChildren,
                 beforeSetFunctions = beforeSetFunctions,
                 afterSetFunctions = afterSetFunctions,
                 beforeLoadFunctions = beforeLoadFunctions,
                 afterLoadFunctions = afterLoadFunctions,
-                lock = lock
+                lock = lock,
             ) {
                 override val source: Source get() = originalConfig.source.withPrefix(prefix)
             }
@@ -140,18 +145,20 @@ open class BaseConfig(
     }
 
     override val itemWithNames: List<Pair<Item<*>, String>>
-        get() = lock.read { tree.leafByPath }.map { (name, node) ->
-            (node as ItemNode).item to name
-        } + (parent?.itemWithNames ?: listOf())
+        get() =
+            lock.read { tree.leafByPath }.map { (name, node) ->
+                (node as ItemNode).item to name
+            } + (parent?.itemWithNames ?: listOf())
 
     override fun toMap(): Map<String, Any> {
         return lock.read {
             itemWithNames.map { (item, name) ->
-                name to try {
-                    getOrNull(item, errorWhenNotFound = true).toCompatibleValue(mapper)
-                } catch (_: UnsetValueException) {
-                    ValueState.Unset
-                }
+                name to
+                    try {
+                        getOrNull(item, errorWhenNotFound = true).toCompatibleValue(mapper)
+                    } catch (_: UnsetValueException) {
+                        ValueState.Unset
+                    }
             }.filter { (_, value) -> value != ValueState.Unset }.toMap()
         }
     }
@@ -160,11 +167,12 @@ open class BaseConfig(
         return ContainerNode(mutableMapOf()).apply {
             lock.read {
                 itemWithNames.forEach { (item, name) ->
-                    val value = try {
-                        getOrNull(item, errorWhenNotFound = true).toCompatibleValue(mapper)
-                    } catch (_: UnsetValueException) {
-                        return@forEach
-                    }
+                    val value =
+                        try {
+                            getOrNull(item, errorWhenNotFound = true).toCompatibleValue(mapper)
+                        } catch (_: UnsetValueException) {
+                            return@forEach
+                        }
                     set(name, value.asTree(item.description))
                 }
                 // Add spec descriptions
@@ -188,7 +196,10 @@ open class BaseConfig(
     @Suppress("UNCHECKED_CAST")
     override fun <T> getOrNull(item: Item<T>): T? = getOrNull(item, errorWhenNotFound = false) as T?
 
-    private fun setState(item: Item<*>, state: ValueState) {
+    private fun setState(
+        item: Item<*>,
+        state: ValueState,
+    ) {
         if (item in nodeByItem) {
             nodeByItem[item]!!.value = state
         } else {
@@ -200,7 +211,7 @@ open class BaseConfig(
         item: Item<*>,
         errorWhenNotFound: Boolean,
         errorWhenGetDefault: Boolean = false,
-        lazyContext: ItemContainer = this
+        lazyContext: ItemContainer = this,
     ): Any? {
         val valueState = lock.read { nodeByItem[item]?.value }
         if (valueState != null) {
@@ -222,27 +233,28 @@ open class BaseConfig(
                     }
                 }
                 is ValueState.Lazy<*> -> {
-                    val value = try {
-                        valueState.thunk(lazyContext)
-                    } catch (exception: ConfigException) {
-                        when (exception) {
-                            is UnsetValueException, is NoSuchItemException -> {
-                                if (errorWhenNotFound) {
-                                    throw exception
-                                } else {
-                                    return null
+                    val value =
+                        try {
+                            valueState.thunk(lazyContext)
+                        } catch (exception: ConfigException) {
+                            when (exception) {
+                                is UnsetValueException, is NoSuchItemException -> {
+                                    if (errorWhenNotFound) {
+                                        throw exception
+                                    } else {
+                                        return null
+                                    }
                                 }
+                                else -> throw exception
                             }
-                            else -> throw exception
                         }
-                    }
                     if (value == null) {
                         if (item.nullable) {
                             return null
                         } else {
                             throw InvalidLazySetException(
                                 "fail to cast null to ${item.type.rawClass}" +
-                                    " when getting item ${item.name} in config"
+                                    " when getting item ${item.name} in config",
                             )
                         }
                     } else {
@@ -251,7 +263,7 @@ open class BaseConfig(
                         } else {
                             throw InvalidLazySetException(
                                 "fail to cast $value with ${value::class} to ${item.type.rawClass}" +
-                                    " when getting item ${item.name} in config"
+                                    " when getting item ${item.name} in config",
                             )
                         }
                     }
@@ -285,7 +297,10 @@ open class BaseConfig(
     @Suppress("UNCHECKED_CAST")
     override fun <T> getOrNull(name: String): T? = getOrNull(name, errorWhenNotFound = false) as T?
 
-    private fun getOrNull(name: String, errorWhenNotFound: Boolean): Any? {
+    private fun getOrNull(
+        name: String,
+        errorWhenNotFound: Boolean,
+    ): Any? {
         val item = getItemOrNull(name)
         return if (item != null) {
             getOrNull(item, errorWhenNotFound)
@@ -343,8 +358,7 @@ open class BaseConfig(
         }
     }
 
-    override fun contains(path: Path): Boolean =
-        containsInLayer(path) || (parent?.contains(path) ?: false)
+    override fun contains(path: Path): Boolean = containsInLayer(path) || (parent?.contains(path) ?: false)
 
     override fun nameOf(item: Item<*>): String {
         return nameByItem[item] ?: {
@@ -377,7 +391,10 @@ open class BaseConfig(
         }
     }
 
-    private fun notifyBeforeSet(item: Item<*>, value: Any?) {
+    private fun notifyBeforeSet(
+        item: Item<*>,
+        value: Any?,
+    ) {
         for (beforeSetFunction in beforeSetFunctions) {
             beforeSetFunction(item, value)
         }
@@ -402,13 +419,19 @@ open class BaseConfig(
         }
     }
 
-    private fun notifyAfterSet(item: Item<*>, value: Any?) {
+    private fun notifyAfterSet(
+        item: Item<*>,
+        value: Any?,
+    ) {
         for (afterSetFunction in afterSetFunctions) {
             afterSetFunction(item, value)
         }
     }
 
-    override fun rawSet(item: Item<*>, value: Any?) {
+    override fun rawSet(
+        item: Item<*>,
+        value: Any?,
+    ) {
         if (item in this) {
             if (value == null) {
                 if (item.nullable) {
@@ -423,7 +446,7 @@ open class BaseConfig(
                 } else {
                     throw ClassCastException(
                         "fail to cast null to ${item.type.rawClass}" +
-                            " when setting item ${item.name} in config"
+                            " when setting item ${item.name} in config",
                     )
                 }
             } else {
@@ -439,7 +462,7 @@ open class BaseConfig(
                 } else {
                     throw ClassCastException(
                         "fail to cast $value with ${value::class} to ${item.type.rawClass}" +
-                            " when setting item ${item.name} in config"
+                            " when setting item ${item.name} in config",
                     )
                 }
             }
@@ -448,11 +471,17 @@ open class BaseConfig(
         }
     }
 
-    override fun <T> set(item: Item<T>, value: T) {
+    override fun <T> set(
+        item: Item<T>,
+        value: T,
+    ) {
         rawSet(item, value)
     }
 
-    override fun <T> set(name: String, value: T) {
+    override fun <T> set(
+        name: String,
+        value: T,
+    ) {
         val item = getItemOrNull(name)
         if (item != null) {
             @Suppress("UNCHECKED_CAST")
@@ -462,7 +491,10 @@ open class BaseConfig(
         }
     }
 
-    override fun <T> lazySet(item: Item<T>, thunk: (config: ItemContainer) -> T) {
+    override fun <T> lazySet(
+        item: Item<T>,
+        thunk: (config: ItemContainer) -> T,
+    ) {
         if (item in this) {
             lock.write {
                 setState(item, ValueState.Lazy(thunk))
@@ -472,7 +504,10 @@ open class BaseConfig(
         }
     }
 
-    override fun <T> lazySet(name: String, thunk: (config: ItemContainer) -> T) {
+    override fun <T> lazySet(
+        name: String,
+        thunk: (config: ItemContainer) -> T,
+    ) {
         val item = getItemOrNull(name)
         if (item != null) {
             @Suppress("UNCHECKED_CAST")
@@ -516,12 +551,13 @@ open class BaseConfig(
         parent?.clearAll()
     }
 
-    override fun containsRequired(): Boolean = try {
-        validateRequired()
-        true
-    } catch (ex: UnsetValueException) {
-        false
-    }
+    override fun containsRequired(): Boolean =
+        try {
+            validateRequired()
+            true
+        } catch (ex: UnsetValueException) {
+            false
+        }
 
     override fun validateRequired(): Config {
         for (item in this) {
@@ -548,10 +584,16 @@ open class BaseConfig(
             throw NoSuchItemException(item)
         }
         return object : ReadWriteProperty<Any?, T> {
-            override fun getValue(thisRef: Any?, property: KProperty<*>): T = get(item)
+            override fun getValue(
+                thisRef: Any?,
+                property: KProperty<*>,
+            ): T = get(item)
 
-            override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) =
-                set(item, value)
+            override fun setValue(
+                thisRef: Any?,
+                property: KProperty<*>,
+                value: T,
+            ) = set(item, value)
         }
     }
 
@@ -560,10 +602,16 @@ open class BaseConfig(
             throw NoSuchItemException(name)
         }
         return object : ReadWriteProperty<Any?, T> {
-            override fun getValue(thisRef: Any?, property: KProperty<*>): T = get(name)
+            override fun getValue(
+                thisRef: Any?,
+                property: KProperty<*>,
+            ): T = get(name)
 
-            override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) =
-                set(name, value)
+            override fun setValue(
+                thisRef: Any?,
+                property: KProperty<*>,
+                value: T,
+            ) = set(name, value)
         }
     }
 
@@ -600,7 +648,10 @@ open class BaseConfig(
         }
     }
 
-    override fun addItem(item: Item<*>, prefix: String) {
+    override fun addItem(
+        item: Item<*>,
+        prefix: String,
+    ) {
         lock.write {
             if (hasChildren.value) {
                 throw LayerFrozenException(this)
@@ -611,22 +662,24 @@ open class BaseConfig(
                 if (path in this) {
                     throw NameConflictException("item $name cannot be added")
                 }
-                val node = ItemNode(
-                    when (item) {
-                        is OptionalItem -> ValueState.Default(item.default)
-                        is RequiredItem -> ValueState.Unset
-                        is LazyItem -> ValueState.Lazy(item.thunk)
-                    },
-                    item
-                )
+                val node =
+                    ItemNode(
+                        when (item) {
+                            is OptionalItem -> ValueState.Default(item.default)
+                            is RequiredItem -> ValueState.Unset
+                            is LazyItem -> ValueState.Lazy(item.thunk)
+                        },
+                        item,
+                    )
                 tree[name] = node
                 nodeByItem[item] = node
                 val sources = this.sources
-                val mergedSource = if (sources.isNotEmpty()) {
-                    sources.reduceRight { source, acc -> MergedSource(source, acc) }
-                } else {
-                    null
-                }
+                val mergedSource =
+                    if (sources.isNotEmpty()) {
+                        sources.reduceRight { source, acc -> MergedSource(source, acc) }
+                    } else {
+                        null
+                    }
                 mergedSource?.let { loadItem(item, path, it) }
             } else {
                 throw RepeatedItemException(name)
@@ -640,11 +693,12 @@ open class BaseConfig(
                 throw LayerFrozenException(this)
             }
             val sources = this.sources
-            val mergedSource = if (sources.isNotEmpty()) {
-                sources.reduceRight { source, acc -> MergedSource(source, acc) }
-            } else {
-                null
-            }
+            val mergedSource =
+                if (sources.isNotEmpty()) {
+                    sources.reduceRight { source, acc -> MergedSource(source, acc) }
+                } else {
+                    null
+                }
             spec.items.forEach { item ->
                 val name = spec.qualify(item)
                 if (item !in this) {
@@ -652,14 +706,15 @@ open class BaseConfig(
                     if (path in this) {
                         throw NameConflictException("item $name cannot be added")
                     }
-                    val node = ItemNode(
-                        when (item) {
-                            is OptionalItem -> ValueState.Default(item.default)
-                            is RequiredItem -> ValueState.Unset
-                            is LazyItem -> ValueState.Lazy(item.thunk)
-                        },
-                        item
-                    )
+                    val node =
+                        ItemNode(
+                            when (item) {
+                                is OptionalItem -> ValueState.Default(item.default)
+                                is RequiredItem -> ValueState.Unset
+                                is LazyItem -> ValueState.Lazy(item.thunk)
+                            },
+                            item,
+                        )
                     tree[name] = node
                     nodeByItem[item] = node
                     mergedSource?.let { loadItem(item, path, it) }
@@ -748,8 +803,8 @@ open class BaseConfig(
         description: String,
         trigger: (
             config: Config,
-            load: (source: Source) -> Unit
-        ) -> Unit
+            load: (source: Source) -> Unit,
+        ) -> Unit,
     ): Config {
         return withLayer("trigger: $description").apply {
             trigger(this) { source ->
@@ -767,7 +822,6 @@ open class BaseConfig(
     }
 
     class ItemNode(override var value: ValueState, val item: Item<*>) : ValueNode {
-
         override var comments = this.item.description
     }
 
@@ -775,9 +829,13 @@ open class BaseConfig(
 
     sealed class ValueState {
         object Unset : ValueState()
+
         object Null : ValueState()
+
         data class Lazy<T>(val thunk: (config: ItemContainer) -> T) : ValueState()
+
         data class Value(val value: Any) : ValueState()
+
         data class Default(val value: Any?) : ValueState()
     }
 }
@@ -785,21 +843,22 @@ open class BaseConfig(
 /**
  * Returns a new default object mapper for config.
  */
-fun createDefaultMapper(): ObjectMapper = jacksonObjectMapper()
-    .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-    .disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
-    .enable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
-    .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-    .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
-    .apply {
-        coercionConfigDefaults().setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty)
-    }
-    .registerModules(
-        SimpleModule()
-            .addDeserializer(String::class.java, StringDeserializer)
-            .setDeserializerModifier(EmptyStringToCollectionDeserializerModifier),
-        JavaTimeModule()
-            .addDeserializer(Duration::class.java, DurationDeserializer)
-            .addDeserializer(OffsetDateTime::class.java, OffsetDateTimeDeserializer)
-            .addDeserializer(ZonedDateTime::class.java, ZoneDateTimeDeserializer)
-    )
+fun createDefaultMapper(): ObjectMapper =
+    jacksonObjectMapper()
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        .disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
+        .enable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
+        .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+        .apply {
+            coercionConfigDefaults().setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty)
+        }
+        .registerModules(
+            SimpleModule()
+                .addDeserializer(String::class.java, StringDeserializer)
+                .setDeserializerModifier(EmptyStringToCollectionDeserializerModifier),
+            JavaTimeModule()
+                .addDeserializer(Duration::class.java, DurationDeserializer)
+                .addDeserializer(OffsetDateTime::class.java, OffsetDateTimeDeserializer)
+                .addDeserializer(ZonedDateTime::class.java, ZoneDateTimeDeserializer),
+        )

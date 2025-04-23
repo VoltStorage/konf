@@ -58,11 +58,12 @@ object FlatSourceSpec : SubjectSpek<FlatSource>({
         group("get operation for list value") {
             val source by memoized {
                 FlatSource(
-                    map = mapOf(
-                        "empty" to "",
-                        "single" to "a",
-                        "multiple" to "a,b"
-                    )
+                    map =
+                        mapOf(
+                            "empty" to "",
+                            "single" to "a",
+                            "multiple" to "a,b",
+                        ),
                 )
             }
             on("empty string value") {
@@ -74,7 +75,7 @@ object FlatSourceSpec : SubjectSpek<FlatSource>({
                 it("should return a list containing a single element") {
                     assertThat(
                         (source["single"].tree as ListNode).list.map { (it as ValueNode).value as String },
-                        equalTo(listOf("a"))
+                        equalTo(listOf("a")),
                     )
                 }
             }
@@ -82,7 +83,7 @@ object FlatSourceSpec : SubjectSpek<FlatSource>({
                 it("should return a list containing multiple elements") {
                     assertThat(
                         (source["multiple"].tree as ListNode).list.map { (it as ValueNode).value as String },
-                        equalTo(listOf("a", "b"))
+                        equalTo(listOf("a", "b")),
                     )
                 }
             }
@@ -126,13 +127,15 @@ object FlatSourceSpec : SubjectSpek<FlatSource>({
         }
     }
     given("a config that contains list of strings with commas") {
-        val spec = object : ConfigSpec() {
-            @Suppress("unused")
-            val list by optional(listOf("a,b", "c, d"))
-        }
-        val config = Config {
-            addSpec(spec)
-        }
+        val spec =
+            object : ConfigSpec() {
+                @Suppress("unused")
+                val list by optional(listOf("a,b", "c, d"))
+            }
+        val config =
+            Config {
+                addSpec(spec)
+            }
         val map = config.toFlatMap()
         it("should not be joined into a string") {
             assertThat(map["list.0"], equalTo("a,b"))
@@ -140,13 +143,15 @@ object FlatSourceSpec : SubjectSpek<FlatSource>({
         }
     }
     given("a config that contains list of strings without commas") {
-        val spec = object : ConfigSpec() {
-            @Suppress("unused")
-            val list by optional(listOf("a", "b", "c", "d"))
-        }
-        val config = Config {
-            addSpec(spec)
-        }
+        val spec =
+            object : ConfigSpec() {
+                @Suppress("unused")
+                val list by optional(listOf("a", "b", "c", "d"))
+            }
+        val config =
+            Config {
+                addSpec(spec)
+            }
         val map = config.toFlatMap()
         it("should be joined into a string with commas") {
             assertThat(map["list"], equalTo("a,b,c,d"))

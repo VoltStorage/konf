@@ -36,18 +36,25 @@ object JsProviderSpec : SubjectSpek<JsProvider>({
                 assertThat(source.info["type"], equalTo("JavaScript"))
             }
             it("should return a source which contains value from reader") {
-                assertThat(source["type"].asValue<String>(), equalTo("reader"))
+                assertThat(
+                    source["type"].asValue<String>(),
+                    equalTo("reader"),
+                )
             }
         }
         on("create source from input stream") {
-            val source = subject.inputStream(
-                tempFileOf("({type: 'inputStream'})").inputStream()
-            )
+            val source =
+                subject.inputStream(
+                    tempFileOf("({type: 'inputStream'})").inputStream(),
+                )
             it("should have correct type") {
                 assertThat(source.info["type"], equalTo("JavaScript"))
             }
             it("should return a source which contains value from input stream") {
-                assertThat(source["type"].asValue<String>(), equalTo("inputStream"))
+                assertThat(
+                    source["type"].asValue<String>(),
+                    equalTo("inputStream"),
+                )
             }
         }
         on("create source from an empty file") {
@@ -55,7 +62,7 @@ object JsProviderSpec : SubjectSpek<JsProvider>({
             it("should return an empty source") {
                 assertThat(
                     subject.file(file).tree.children,
-                    equalTo(mutableMapOf())
+                    equalTo(mutableMapOf()),
                 )
             }
         }

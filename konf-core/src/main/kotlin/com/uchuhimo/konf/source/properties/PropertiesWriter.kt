@@ -43,24 +43,34 @@ private class NoCommentProperties : Properties() {
         override fun write(b: Int) {
             if (firstLineSeen) {
                 super.write(b)
-            } else if (b == '\n'.toInt()) {
+            } else if (b == '\n'.code) {
                 firstLineSeen = true
             }
         }
     }
 
     private class StripFirstLineWriter(writer: java.io.Writer) : java.io.FilterWriter(writer) {
-        override fun write(cbuf: CharArray, off: Int, len: Int) {
+        override fun write(
+            cbuf: CharArray,
+            off: Int,
+            len: Int,
+        ) {
             val offset = cbuf.indexOfFirst { it == '\n' }
             super.write(cbuf, offset + 1, len - offset - 1)
         }
     }
 
-    override fun store(out: OutputStream, comments: String?) {
+    override fun store(
+        out: OutputStream,
+        comments: String?,
+    ) {
         super.store(StripFirstLineStream(out), null)
     }
 
-    override fun store(writer: java.io.Writer, comments: String?) {
+    override fun store(
+        writer: java.io.Writer,
+        comments: String?,
+    ) {
         super.store(StripFirstLineWriter(writer), null)
     }
 }

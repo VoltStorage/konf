@@ -65,7 +65,10 @@ interface Config : ItemContainer {
      * @param item config item
      * @param value associated value
      */
-    fun rawSet(item: Item<*>, value: Any?)
+    fun rawSet(
+        item: Item<*>,
+        value: Any?,
+    )
 
     /**
      * Associate item with specified value.
@@ -73,7 +76,10 @@ interface Config : ItemContainer {
      * @param item config item
      * @param value associated value
      */
-    operator fun <T> set(item: Item<T>, value: T)
+    operator fun <T> set(
+        item: Item<T>,
+        value: T,
+    )
 
     /**
      * Find item with specified name, and associate it with specified value.
@@ -81,7 +87,10 @@ interface Config : ItemContainer {
      * @param name item name
      * @param value associated value
      */
-    operator fun <T> set(name: String, value: T)
+    operator fun <T> set(
+        name: String,
+        value: T,
+    )
 
     /**
      * Associate item with specified thunk, which can be used to evaluate value for the item.
@@ -89,7 +98,10 @@ interface Config : ItemContainer {
      * @param item config item
      * @param thunk thunk used to evaluate value for the item
      */
-    fun <T> lazySet(item: Item<T>, thunk: (config: ItemContainer) -> T)
+    fun <T> lazySet(
+        item: Item<T>,
+        thunk: (config: ItemContainer) -> T,
+    )
 
     /**
      * Find item with specified name, and associate item with specified thunk,
@@ -98,7 +110,10 @@ interface Config : ItemContainer {
      * @param name item name
      * @param thunk thunk used to evaluate value for the item
      */
-    fun <T> lazySet(name: String, thunk: (config: ItemContainer) -> T)
+    fun <T> lazySet(
+        name: String,
+        thunk: (config: ItemContainer) -> T,
+    )
 
     /**
      * Discard associated value of specified item.
@@ -239,7 +254,10 @@ interface Config : ItemContainer {
      * @param item config item
      * @param prefix prefix for the config item
      */
-    fun addItem(item: Item<*>, prefix: String = "")
+    fun addItem(
+        item: Item<*>,
+        prefix: String = "",
+    )
 
     /**
      * Load items in specified config spec into facade layer.
@@ -292,8 +310,8 @@ interface Config : ItemContainer {
         description: String,
         trigger: (
             config: Config,
-            load: (source: Source) -> Unit
-        ) -> Unit
+            load: (source: Source) -> Unit,
+        ) -> Unit,
     ): Config
 
     /**
@@ -400,8 +418,7 @@ interface Config : ItemContainer {
  *
  * @return a property that can read/set associated value casted from config
  */
-inline fun <reified T> Config.cast() =
-    object : RequiredConfigProperty<T>(this.withPrefix("root").withLayer(), name = "root") {}
+inline fun <reified T> Config.cast() = object : RequiredConfigProperty<T>(this.withPrefix("root").withLayer(), name = "root") {}
 
 /**
  * Returns a value casted from config.
@@ -424,29 +441,32 @@ inline fun <reified T> Config.toValue(): T {
 inline fun <reified T> Config.required(
     prefix: String = "",
     name: String? = null,
-    description: String = ""
-) =
-    object : RequiredConfigProperty<T>(this, prefix, name, description, null is T) {}
+    description: String = "",
+) = object : RequiredConfigProperty<T>(this, prefix, name, description, null is T) {}
 
 open class RequiredConfigProperty<T>(
     private val config: Config,
     private val prefix: String = "",
     private val name: String? = null,
     private val description: String = "",
-    private val nullable: Boolean = false
+    private val nullable: Boolean = false,
 ) : PropertyDelegateProvider<Any?, ReadWriteProperty<Any?, T>> {
-    override operator fun provideDelegate(thisRef: Any?, property: KProperty<*>):
-        ReadWriteProperty<Any?, T> {
-        val type: JavaType = TypeFactory.defaultInstance().constructType(this::class.java)
-            .findSuperType(RequiredConfigProperty::class.java).bindings.typeParameters[0]
-        val item = object : RequiredItem<T>(
-            Spec.dummy,
-            name
-                ?: property.name,
-            description,
-            type,
-            nullable
-        ) {}
+    override operator fun provideDelegate(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ): ReadWriteProperty<Any?, T> {
+        val type: JavaType =
+            TypeFactory.defaultInstance().constructType(this::class.java)
+                .findSuperType(RequiredConfigProperty::class.java).bindings.typeParameters[0]
+        val item =
+            object : RequiredItem<T>(
+                Spec.dummy,
+                name
+                    ?: property.name,
+                description,
+                type,
+                nullable,
+            ) {}
         config.addItem(item, prefix)
         return config.property(item)
     }
@@ -465,9 +485,8 @@ inline fun <reified T> Config.optional(
     default: T,
     prefix: String = "",
     name: String? = null,
-    description: String = ""
-) =
-    object : OptionalConfigProperty<T>(this, default, prefix, name, description, null is T) {}
+    description: String = "",
+) = object : OptionalConfigProperty<T>(this, default, prefix, name, description, null is T) {}
 
 open class OptionalConfigProperty<T>(
     private val config: Config,
@@ -475,21 +494,25 @@ open class OptionalConfigProperty<T>(
     private val prefix: String = "",
     private val name: String? = null,
     private val description: String = "",
-    private val nullable: Boolean = false
+    private val nullable: Boolean = false,
 ) : PropertyDelegateProvider<Any?, ReadWriteProperty<Any?, T>> {
-    override operator fun provideDelegate(thisRef: Any?, property: KProperty<*>):
-        ReadWriteProperty<Any?, T> {
-        val type: JavaType = TypeFactory.defaultInstance().constructType(this::class.java)
-            .findSuperType(OptionalConfigProperty::class.java).bindings.typeParameters[0]
-        val item = object : OptionalItem<T>(
-            Spec.dummy,
-            name
-                ?: property.name,
-            default,
-            description,
-            type,
-            nullable
-        ) {}
+    override operator fun provideDelegate(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ): ReadWriteProperty<Any?, T> {
+        val type: JavaType =
+            TypeFactory.defaultInstance().constructType(this::class.java)
+                .findSuperType(OptionalConfigProperty::class.java).bindings.typeParameters[0]
+        val item =
+            object : OptionalItem<T>(
+                Spec.dummy,
+                name
+                    ?: property.name,
+                default,
+                description,
+                type,
+                nullable,
+            ) {}
         config.addItem(item, prefix)
         return config.property(item)
     }
@@ -508,9 +531,8 @@ inline fun <reified T> Config.lazy(
     prefix: String = "",
     name: String? = null,
     description: String = "",
-    noinline thunk: (config: ItemContainer) -> T
-) =
-    object : LazyConfigProperty<T>(this, thunk, prefix, name, description, null is T) {}
+    noinline thunk: (config: ItemContainer) -> T,
+) = object : LazyConfigProperty<T>(this, thunk, prefix, name, description, null is T) {}
 
 open class LazyConfigProperty<T>(
     private val config: Config,
@@ -518,21 +540,25 @@ open class LazyConfigProperty<T>(
     private val prefix: String = "",
     private val name: String? = null,
     private val description: String = "",
-    private val nullable: Boolean = false
+    private val nullable: Boolean = false,
 ) : PropertyDelegateProvider<Any?, ReadWriteProperty<Any?, T>> {
-    override operator fun provideDelegate(thisRef: Any?, property: KProperty<*>):
-        ReadWriteProperty<Any?, T> {
-        val type: JavaType = TypeFactory.defaultInstance().constructType(this::class.java)
-            .findSuperType(LazyConfigProperty::class.java).bindings.typeParameters[0]
-        val item = object : LazyItem<T>(
-            Spec.dummy,
-            name
-                ?: property.name,
-            thunk,
-            description,
-            type,
-            nullable
-        ) {}
+    override operator fun provideDelegate(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ): ReadWriteProperty<Any?, T> {
+        val type: JavaType =
+            TypeFactory.defaultInstance().constructType(this::class.java)
+                .findSuperType(LazyConfigProperty::class.java).bindings.typeParameters[0]
+        val item =
+            object : LazyItem<T>(
+                Spec.dummy,
+                name
+                    ?: property.name,
+                thunk,
+                description,
+                type,
+                nullable,
+            ) {}
         config.addItem(item, prefix)
         return config.property(item)
     }

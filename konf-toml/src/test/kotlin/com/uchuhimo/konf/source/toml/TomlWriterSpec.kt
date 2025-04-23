@@ -30,20 +30,22 @@ import java.io.StringWriter
 
 object TomlWriterSpec : SubjectSpek<Writer>({
     subject {
-        val config = Config {
-            addSpec(
-                object : ConfigSpec() {
-                    val key by optional("value")
-                }
-            )
-        }
+        val config =
+            Config {
+                addSpec(
+                    object : ConfigSpec() {
+                        val key by optional("value")
+                    },
+                )
+            }
         config.toToml
     }
 
     given("a writer") {
         val expectedString =
             """key = "value"
-            |""".trimMargin().replace("\n", System.lineSeparator())
+            |
+            """.trimMargin().replace("\n", System.lineSeparator())
         on("save to string") {
             val string = subject.toText()
             it("should return a string which contains content from config") {

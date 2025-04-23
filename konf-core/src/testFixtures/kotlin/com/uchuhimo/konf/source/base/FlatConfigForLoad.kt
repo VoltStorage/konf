@@ -36,5 +36,5 @@ data class ClassForLoad(
     val emptyArray: IntArray,
     val emptyObjectArray: Array<Int>,
     val singleElementList: List<Int>,
-    val multipleElementsList: List<Int>
+    val multipleElementsList: List<Int>,
 ) : Serializable

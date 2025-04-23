@@ -17,7 +17,7 @@
 package com.uchuhimo.konf.source
 
 //language=YAML
-const val yamlContent =
+const val YAML_CONTENT =
     """
 source:
     test:

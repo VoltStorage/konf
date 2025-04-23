@@ -20,10 +20,16 @@ import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider
 import com.fasterxml.jackson.databind.deser.std.StringDeserializer as JacksonStringDeserializer
 
 object StringDeserializer : JacksonStringDeserializer() {
-    override fun _deserializeFromArray(p: JsonParser, ctxt: DeserializationContext): String? {
+    private fun readResolve(): Any = StringDeserializer
+
+    override fun _deserializeFromArray(
+        p: JsonParser,
+        ctxt: DeserializationContext,
+    ): String? {
         val t = p.nextToken()
         if (t == JsonToken.END_ARRAY && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
             return getNullValue(ctxt)
@@ -42,16 +48,17 @@ object StringDeserializer : JacksonStringDeserializer() {
     private fun deserializeFromRestOfArray(
         token: JsonToken,
         p: JsonParser,
-        ctxt: DeserializationContext
+        ctxt: DeserializationContext,
     ): String {
         var t = token
         val sb = StringBuilder(64)
         while (t != JsonToken.END_ARRAY) {
-            val str = if (t == JsonToken.VALUE_STRING) {
-                p.text
-            } else {
-                _parseString(p, ctxt)
-            }
+            val str =
+                if (t == JsonToken.VALUE_STRING) {
+                    p.text
+                } else {
+                    _parseString(p, ctxt, NullsConstantProvider.nuller())
+                }
             if (sb.isEmpty()) {
                 sb.append(str)
             } else {

@@ -25,7 +25,7 @@ data class Prefix(
     /**
      * The path of the prefix
      */
-    val path: String = ""
+    val path: String = "",
 ) {
     /**
      * Returns a config spec with this prefix.

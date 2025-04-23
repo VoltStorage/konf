@@ -30,13 +30,14 @@ import java.io.StringWriter
 
 object XmlWriterSpec : SubjectSpek<Writer>({
     subject {
-        val config = Config {
-            addSpec(
-                object : ConfigSpec() {
-                    val key by optional("value")
-                }
-            )
-        }
+        val config =
+            Config {
+                addSpec(
+                    object : ConfigSpec() {
+                        val key by optional("value")
+                    },
+                )
+            }
         config.toXml
     }
 
@@ -51,7 +52,8 @@ object XmlWriterSpec : SubjectSpek<Writer>({
             |    <value>value</value>
             |  </property>
             |</configuration>
-            |""".trimMargin().replace("\n", System.lineSeparator())
+            |
+            """.trimMargin().replace("\n", System.lineSeparator())
         on("save to writer") {
             val writer = StringWriter()
             subject.toWriter(writer)

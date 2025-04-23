@@ -34,15 +34,16 @@ object FlatSourceLoadBaseSpec : SubjectSpek<Config>({
     given("a flat source") {
         on("load the source into config") {
             it("should contain every value specified in the source") {
-                val classForLoad = ClassForLoad(
-                    stringWithComma = "string,with,comma",
-                    emptyList = listOf(),
-                    emptySet = setOf(),
-                    emptyArray = intArrayOf(),
-                    emptyObjectArray = arrayOf(),
-                    singleElementList = listOf(1),
-                    multipleElementsList = listOf(1, 2)
-                )
+                val classForLoad =
+                    ClassForLoad(
+                        stringWithComma = "string,with,comma",
+                        emptyList = listOf(),
+                        emptySet = setOf(),
+                        emptyArray = intArrayOf(),
+                        emptyObjectArray = arrayOf(),
+                        singleElementList = listOf(1),
+                        multipleElementsList = listOf(1, 2),
+                    )
                 assertThat(subject[FlatConfigForLoad.emptyList], equalTo(listOf()))
                 assertThat(subject[FlatConfigForLoad.emptySet], equalTo(setOf()))
                 assertTrue(Arrays.equals(subject[FlatConfigForLoad.emptyArray], intArrayOf()))
@@ -51,7 +52,7 @@ object FlatSourceLoadBaseSpec : SubjectSpek<Config>({
                 assertThat(subject[FlatConfigForLoad.multipleElementsList], equalTo(listOf(1, 2)))
                 assertThat(
                     subject[FlatConfigForLoad.flatClass].stringWithComma,
-                    equalTo(classForLoad.stringWithComma)
+                    equalTo(classForLoad.stringWithComma),
                 )
             }
         }

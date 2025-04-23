@@ -19,12 +19,13 @@ package com.uchuhimo.konf.source
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.Feature
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.InputStream
 import java.io.Reader
+import java.net.URI
 import java.net.URL
 import java.nio.file.FileSystems
 import java.nio.file.Path
@@ -48,7 +49,7 @@ class Loader(
     /**
      * Source provider to provide source from various input format.
      */
-    val provider: Provider
+    val provider: Provider,
 ) {
     val optional = config.isEnabled(Feature.OPTIONAL_SOURCE_BY_DEFAULT)
 
@@ -58,8 +59,7 @@ class Loader(
      * @param reader specified reader for reading character streams
      * @return a child config containing values from specified reader
      */
-    fun reader(reader: Reader): Config =
-        config.withSource(provider.reader(reader))
+    fun reader(reader: Reader): Config = config.withSource(provider.reader(reader))
 
     /**
      * Returns a child config containing values from specified input stream.
@@ -67,8 +67,7 @@ class Loader(
      * @param inputStream specified input stream of bytes
      * @return a child config containing values from specified input stream
      */
-    fun inputStream(inputStream: InputStream): Config =
-        config.withSource(provider.inputStream(inputStream))
+    fun inputStream(inputStream: InputStream): Config = config.withSource(provider.inputStream(inputStream))
 
     /**
      * Returns a child config containing values from specified file.
@@ -77,8 +76,10 @@ class Loader(
      * @param optional whether the source is optional
      * @return a child config containing values from specified file
      */
-    fun file(file: File, optional: Boolean = this.optional): Config =
-        config.withSource(provider.file(file, optional))
+    fun file(
+        file: File,
+        optional: Boolean = this.optional,
+    ): Config = config.withSource(provider.file(file, optional))
 
     /**
      * Returns a child config containing values from specified file path.
@@ -87,8 +88,10 @@ class Loader(
      * @param optional whether the source is optional
      * @return a child config containing values from specified file path
      */
-    fun file(file: String, optional: Boolean = this.optional): Config =
-        config.withSource(provider.file(file, optional))
+    fun file(
+        file: String,
+        optional: Boolean = this.optional,
+    ): Config = config.withSource(provider.file(file, optional))
 
     private val File.digest: ByteArray
         get() {
@@ -115,7 +118,7 @@ class Loader(
         unit: TimeUnit = TimeUnit.SECONDS,
         context: CoroutineContext = Dispatchers.Default,
         optional: Boolean = this.optional,
-        onLoad: ((config: Config, source: Source) -> Unit)? = null
+        onLoad: ((config: Config, source: Source) -> Unit)? = null,
     ): Config {
         val absoluteFile = file.absoluteFile
         return provider.file(absoluteFile, optional).let { source ->
@@ -130,10 +133,10 @@ class Loader(
                 path.register(
                     watcher,
                     StandardWatchEventKinds.ENTRY_MODIFY,
-                    StandardWatchEventKinds.ENTRY_CREATE
+                    StandardWatchEventKinds.ENTRY_CREATE,
                 )
                 var digest = absoluteFile.digest
-                GlobalScope.launch(context) {
+                MainScope().launch(context) {
                     while (true) {
                         delay(unit.toMillis(delayTime))
                         if (isMac) {
@@ -201,9 +204,8 @@ class Loader(
         unit: TimeUnit = TimeUnit.SECONDS,
         context: CoroutineContext = Dispatchers.Default,
         optional: Boolean = this.optional,
-        onLoad: ((config: Config, source: Source) -> Unit)? = null
-    ): Config =
-        watchFile(File(file), delayTime, unit, context, optional, onLoad)
+        onLoad: ((config: Config, source: Source) -> Unit)? = null,
+    ): Config = watchFile(File(file), delayTime, unit, context, optional, onLoad)
 
     /**
      * Returns a child config containing values from specified string.
@@ -211,8 +213,7 @@ class Loader(
      * @param content specified string
      * @return a child config containing values from specified string
      */
-    fun string(content: String): Config =
-        config.withSource(provider.string(content))
+    fun string(content: String): Config = config.withSource(provider.string(content))
 
     /**
      * Returns a child config containing values from specified byte array.
@@ -220,8 +221,7 @@ class Loader(
      * @param content specified byte array
      * @return a child config containing values from specified byte array
      */
-    fun bytes(content: ByteArray): Config =
-        config.withSource(provider.bytes(content))
+    fun bytes(content: ByteArray): Config = config.withSource(provider.bytes(content))
 
     /**
      * Returns a child config containing values from specified portion of byte array.
@@ -231,8 +231,11 @@ class Loader(
      * @param length the length of the portion of the array to read
      * @return a child config containing values from specified portion of byte array
      */
-    fun bytes(content: ByteArray, offset: Int, length: Int): Config =
-        config.withSource(provider.bytes(content, offset, length))
+    fun bytes(
+        content: ByteArray,
+        offset: Int,
+        length: Int,
+    ): Config = config.withSource(provider.bytes(content, offset, length))
 
     /**
      * Returns a child config containing values from specified url.
@@ -241,8 +244,10 @@ class Loader(
      * @param optional whether the source is optional
      * @return a child config containing values from specified url
      */
-    fun url(url: URL, optional: Boolean = this.optional): Config =
-        config.withSource(provider.url(url, optional))
+    fun url(
+        url: URL,
+        optional: Boolean = this.optional,
+    ): Config = config.withSource(provider.url(url, optional))
 
     /**
      * Returns a child config containing values from specified url string.
@@ -251,8 +256,10 @@ class Loader(
      * @param optional whether the source is optional
      * @return a child config containing values from specified url string
      */
-    fun url(url: String, optional: Boolean = this.optional): Config =
-        config.withSource(provider.url(url, optional))
+    fun url(
+        url: String,
+        optional: Boolean = this.optional,
+    ): Config = config.withSource(provider.url(url, optional))
 
     /**
      * Returns a child config containing values from specified url,
@@ -272,7 +279,7 @@ class Loader(
         unit: TimeUnit = TimeUnit.SECONDS,
         context: CoroutineContext = Dispatchers.Default,
         optional: Boolean = this.optional,
-        onLoad: ((config: Config, source: Source) -> Unit)? = null
+        onLoad: ((config: Config, source: Source) -> Unit)? = null,
     ): Config {
         return provider.url(url, optional).let { source ->
             config.withLoadTrigger("watch ${source.description}") { newConfig, load ->
@@ -280,7 +287,7 @@ class Loader(
                     load(source)
                 }
                 onLoad?.invoke(newConfig, source)
-                GlobalScope.launch(context) {
+                MainScope().launch(context) {
                     while (true) {
                         delay(unit.toMillis(period))
                         val newSource = provider.url(url, optional)
@@ -313,17 +320,18 @@ class Loader(
         unit: TimeUnit = TimeUnit.SECONDS,
         context: CoroutineContext = Dispatchers.Default,
         optional: Boolean = this.optional,
-        onLoad: ((config: Config, source: Source) -> Unit)? = null
-    ): Config =
-        watchUrl(URL(url), period, unit, context, optional, onLoad)
+        onLoad: ((config: Config, source: Source) -> Unit)? = null,
+    ): Config = watchUrl(URI(url).toURL(), period, unit, context, optional, onLoad)
 
     /**
-     * Returns a child config containing values from specified resource.
+     * Returns a child config containing values from the specified resource.
      *
      * @param resource path of specified resource
      * @param optional whether the source is optional
-     * @return a child config containing values from specified resource
+     * @return a child config, containing the values from the specified resource
      */
-    fun resource(resource: String, optional: Boolean = this.optional): Config =
-        config.withSource(provider.resource(resource, optional))
+    fun resource(
+        resource: String,
+        optional: Boolean = this.optional,
+    ): Config = config.withSource(provider.resource(resource, optional))
 }

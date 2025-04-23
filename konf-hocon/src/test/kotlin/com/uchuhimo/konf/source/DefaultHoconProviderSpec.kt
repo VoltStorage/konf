@@ -31,7 +31,7 @@ object DefaultHoconProviderSpec : SubjectSpek<DefaultProviders>({
 
     given("a provider") {
         on("provider source from HOCON file") {
-            val config = subject.file(tempFileOf(hoconContent, suffix = ".conf")).toConfig()
+            val config = subject.file(tempFileOf(HOCON_CONTENT, suffix = ".conf")).toConfig()
             it("should provide as auto-detected file format") {
                 assertThat(config[item], equalTo("conf"))
             }

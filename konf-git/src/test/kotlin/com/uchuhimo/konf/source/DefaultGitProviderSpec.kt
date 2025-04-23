@@ -37,7 +37,7 @@ object DefaultGitProviderSpec : SubjectSpek<DefaultProviders>({
                 Git.init().apply {
                     setDirectory(dir)
                 }.call().use { git ->
-                    Paths.get(dir.path, "source.properties").toFile().writeText(propertiesContent)
+                    Paths.get(dir.path, "source.properties").toFile().writeText(PROPERTIES_CONTENT)
                     git.add().apply {
                         addFilepattern("source.properties")
                     }.call()

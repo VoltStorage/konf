@@ -77,7 +77,7 @@ object GitProviderSpec : SubjectSpek<Provider>({
                 it("should throw InvalidRemoteRepoException") {
                     assertThat(
                         { subject.git(tempDirectory().path, "test", dir = dir.path) },
-                        throws<InvalidRemoteRepoException>()
+                        throws<InvalidRemoteRepoException>(),
                     )
                 }
                 it("should return an empty source if optional") {

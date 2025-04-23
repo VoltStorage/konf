@@ -41,17 +41,18 @@ object PrimitiveStdSerializerSpec : SubjectSpek<Config>({
                 SimpleModule().apply {
                     addSerializer(WrappedString::class.java, WrappedStringStdSerializer())
                     addDeserializer(WrappedString::class.java, WrappedStringStdDeserializer())
-                }
+                },
             )
         }
     }
 
     given("a config") {
-        val json = """
+        val json =
+            """
             {
               "wrapped-string" : "1234"
             }
-        """.trimIndent().replace("\n", System.lineSeparator())
+            """.trimIndent().replace("\n", System.lineSeparator())
         on("write wrapped string to json") {
             subject[WrappedStringSpec.wrappedString] = WrappedString("1234")
             val result = subject.toJson.toText()
@@ -73,15 +74,20 @@ private object WrappedStringSpec : ConfigSpec("") {
 }
 
 private class WrappedStringStdSerializer : StdSerializer<WrappedString>(WrappedString::class.java) {
-
-    override fun serialize(value: WrappedString, gen: JsonGenerator, provider: SerializerProvider) {
+    override fun serialize(
+        value: WrappedString,
+        gen: JsonGenerator,
+        provider: SerializerProvider,
+    ) {
         gen.writeString(value.string)
     }
 }
 
 private class WrappedStringStdDeserializer : StdDeserializer<WrappedString>(WrappedString::class.java) {
-
-    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): WrappedString {
+    override fun deserialize(
+        p: JsonParser,
+        ctxt: DeserializationContext,
+    ): WrappedString {
         return WrappedString(p.valueAsString)
     }
 }

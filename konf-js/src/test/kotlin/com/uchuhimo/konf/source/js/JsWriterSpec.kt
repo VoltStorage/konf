@@ -30,13 +30,14 @@ import java.io.StringWriter
 
 object JsWriterSpec : SubjectSpek<Writer>({
     subject {
-        val config = Config {
-            addSpec(
-                object : ConfigSpec() {
-                    val key by optional("value")
-                }
-            )
-        }
+        val config =
+            Config {
+                addSpec(
+                    object : ConfigSpec() {
+                        val key by optional("value")
+                    },
+                )
+            }
         config.toJs
     }
 
@@ -44,7 +45,8 @@ object JsWriterSpec : SubjectSpek<Writer>({
         val expectedString =
             """({
             |  key: "value"
-            |})""".trimMargin().replace("\n", System.lineSeparator())
+            |})
+            """.trimMargin().replace("\n", System.lineSeparator())
         on("save to writer") {
             val writer = StringWriter()
             subject.toWriter(writer)

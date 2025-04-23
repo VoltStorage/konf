@@ -31,7 +31,7 @@ object DefaultJsProviderSpec : SubjectSpek<DefaultProviders>({
 
     given("a provider") {
         on("provider source from JavaScript file") {
-            val config = subject.file(tempFileOf(jsContent, suffix = ".js")).toConfig()
+            val config = subject.file(tempFileOf(JS_CONTENT, suffix = ".js")).toConfig()
             it("should provide as auto-detected file format") {
                 assertThat(config[item], equalTo("js"))
             }

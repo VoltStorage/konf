@@ -30,13 +30,14 @@ import java.io.StringWriter
 
 object YamlWriterSpec : SubjectSpek<Writer>({
     subject {
-        val config = Config {
-            addSpec(
-                object : ConfigSpec() {
-                    val key by optional("value")
-                }
-            )
-        }
+        val config =
+            Config {
+                addSpec(
+                    object : ConfigSpec() {
+                        val key by optional("value")
+                    },
+                )
+            }
         config.toYaml
     }
 

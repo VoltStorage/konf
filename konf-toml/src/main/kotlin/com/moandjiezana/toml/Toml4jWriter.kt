@@ -37,7 +37,7 @@ import java.util.regex.Pattern
  * are output to TOML tables, and {@link List}s and Array to TOML arrays.</p>
  *
  * <p>Example usage:</p>
- * <pre><code>
+ * <pre> <code>
  * class AClass {
  *   int anInt = 1;
  *   int[] anArray = { 2, 3 };
@@ -72,23 +72,28 @@ class Toml4jWriter {
      * @throws IllegalArgumentException if from is of an invalid type
      */
     @Throws(IOException::class)
-    fun write(from: Any, target: Writer) {
+    fun write(
+        from: Any,
+        target: Writer,
+    ) {
         val valueWriter = Toml4jValueWriters.findWriterFor(from)
         if (valueWriter === NewMapValueWriter) {
-            val context = WriterContext(
-                IndentationPolicy(0, 0, 0),
-                DatePolicy(TimeZone.getTimeZone("UTC"), false),
-                target
-            )
+            val context =
+                WriterContext(
+                    IndentationPolicy(0, 0, 0),
+                    DatePolicy(TimeZone.getTimeZone("UTC"), false),
+                    target,
+                )
             valueWriter.write(from, context)
         } else {
-            throw IllegalArgumentException("An object of class " + from.javaClass.simpleName + " cannot produce valid TOML. Please pass in a Map or a custom type.")
+            throw IllegalArgumentException(
+                "An object of class " + from.javaClass.simpleName + " cannot produce valid TOML. Please pass in a Map or a custom type.",
+            )
         }
     }
 }
 
 internal object Toml4jValueWriters {
-
     fun findWriterFor(value: Any): ValueWriter {
         for (valueWriter in VALUE_WRITERS) {
             if (valueWriter.canWrite(value)) {
@@ -98,20 +103,24 @@ internal object Toml4jValueWriters {
         error("Can't find writer for ${value::class.qualifiedName}")
     }
 
-    private val VALUE_WRITERS = arrayOf<ValueWriter>(
-        STRING_VALUE_READER_WRITER,
-        NUMBER_VALUE_READER_WRITER,
-        BOOLEAN_VALUE_READER_WRITER,
-        DATE_VALUE_READER_WRITER,
-        NewMapValueWriter,
-        NewArrayValueWriter
-    )
+    private val VALUE_WRITERS =
+        arrayOf<ValueWriter>(
+            STRING_VALUE_READER_WRITER,
+            NUMBER_VALUE_READER_WRITER,
+            BOOLEAN_VALUE_READER_WRITER,
+            DATE_VALUE_READER_WRITER,
+            NewMapValueWriter,
+            NewArrayValueWriter,
+        )
 }
 
 internal object NewArrayValueWriter : ArrayValueWriter() {
     override fun canWrite(value: Any?): Boolean = isArrayish(value) || value is ListNode
 
-    override fun write(o: Any, context: WriterContext) {
+    override fun write(
+        o: Any,
+        context: WriterContext,
+    ) {
         val node = o as? ListNode
         val values = normalize(node?.list ?: o)
 
@@ -122,19 +131,22 @@ internal object NewArrayValueWriter : ArrayValueWriter() {
         var first = true
         var firstWriter: ValueWriter? = null
 
-        val hasAnyComments = values.filter { it is TreeNode && it.comments.isNotEmpty() }.any()
-        if (hasAnyComments)
+        val hasAnyComments = values.any { it is TreeNode && it.comments.isNotEmpty() }
+        if (hasAnyComments) {
             context.write('\n')
+        }
 
         for (value in values) {
-            if (value == null)
+            if (value == null) {
                 continue
+            }
 
             val fromNode = value as? TreeNode
             val fromValue = fromNode?.value ?: value
 
-            if (hasAnyComments)
+            if (hasAnyComments) {
                 context.indent()
+            }
 
             if (first) {
                 firstWriter = Toml4jValueWriters.findWriterFor(fromValue)
@@ -145,11 +157,12 @@ internal object NewArrayValueWriter : ArrayValueWriter() {
                     throw IllegalStateException(
                         context.contextPath +
                             ": cannot write a heterogeneous array; first element was of type " + firstWriter +
-                            " but found " + writer
+                            " but found " + writer,
                     )
                 }
-                if (hasAnyComments)
+                if (hasAnyComments) {
                     context.write('\n')
+                }
                 context.write(", ")
             }
 
@@ -166,41 +179,50 @@ internal object NewArrayValueWriter : ArrayValueWriter() {
         }
 
         context.writeArrayDelimiterPadding()
-        if (hasAnyComments)
+        if (hasAnyComments) {
             context.write('\n')
+        }
         context.write(']')
     }
 }
 
 private val TreeNode.value: Any
-    get() = when (this) {
-        is ValueNode -> this.value
-        is ListNode -> this.list
-        else -> this.children
-    }
+    get() =
+        when (this) {
+            is ValueNode -> this.value
+            is ListNode -> this.list
+            else -> this.children
+        }
 
-private fun WriterContext.writeComments(node: TreeNode?, newLineAfter: Boolean = true) {
-    if (node == null || node.comments.isEmpty())
+private fun WriterContext.writeComments(
+    node: TreeNode?,
+    newLineAfter: Boolean = true,
+) {
+    if (node == null || node.comments.isEmpty()) {
         return
+    }
     val comments = node.comments.split("\n")
     comments.forEach { comment ->
         write('\n')
         indent()
         write("# $comment")
     }
-    if (newLineAfter)
+    if (newLineAfter) {
         write('\n')
+    }
 }
 
 internal object NewMapValueWriter : ValueWriter {
-
     override fun canWrite(value: Any): Boolean {
         return value is Map<*, *> || (value is TreeNode && value !is ValueNode && value !is ListNode)
     }
 
     var isNested: Boolean = false
 
-    override fun write(value: Any, context: WriterContext) {
+    override fun write(
+        value: Any,
+        context: WriterContext,
+    ) {
         val node = value as? TreeNode
         val from = node?.children ?: value as Map<*, *>
 
@@ -218,8 +240,9 @@ internal object NewMapValueWriter : ValueWriter {
         // Render primitive types and arrays of primitive first so they are
         // grouped under the same table (if there is one)
         for ((key, value1) in from) {
-            if (value1 == null)
+            if (value1 == null) {
                 continue
+            }
 
             val fromNode = value1 as? TreeNode
             val fromValue = fromNode?.value ?: value1

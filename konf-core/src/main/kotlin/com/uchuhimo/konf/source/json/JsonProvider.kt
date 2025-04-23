@@ -27,11 +27,9 @@ import java.io.Reader
  * Provider for JSON source.
  */
 object JsonProvider : Provider {
-    override fun reader(reader: Reader): Source =
-        JsonSource(ObjectMapper().readTree(reader))
+    override fun reader(reader: Reader): Source = JsonSource(ObjectMapper().readTree(reader))
 
-    override fun inputStream(inputStream: InputStream): Source =
-        JsonSource(ObjectMapper().readTree(inputStream))
+    override fun inputStream(inputStream: InputStream): Source = JsonSource(ObjectMapper().readTree(inputStream))
 
     @JavaApi
     @JvmStatic

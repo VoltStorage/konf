@@ -26,14 +26,21 @@ import org.jetbrains.spek.api.dsl.on
 
 object MergeSourcesWithDifferentFeaturesSpec : Spek({
     on("load from merged sources") {
-        val config = Config {
-            addSpec(ServicingConfig)
-        }.withSource(
-            Source.from.hocon.string(content) + Source.from.env()
-        )
+        val config =
+            Config {
+                addSpec(ServicingConfig)
+            }.withSource(
+                Source.from.hocon.string(content) + Source.from.env(),
+            )
         it("should contain the item") {
-            assertThat(config[ServicingConfig.baseURL], equalTo("https://service/api"))
-            assertThat(config[ServicingConfig.url], equalTo("https://service/api/index.html"))
+            assertThat(
+                config[ServicingConfig.baseURL],
+                equalTo("https://service/api"),
+            )
+            assertThat(
+                config[ServicingConfig.url],
+                equalTo("https://service/api/index.html"),
+            )
         }
     }
 })
@@ -43,9 +50,10 @@ object ServicingConfig : ConfigSpec("servicing") {
     val url by required<String>()
 }
 
-val content = """
+val content =
+    """
     servicing {
       baseURL = "https://service/api"
       url = "${'$'}{servicing.baseURL}/index.html"
     }
-""".trimIndent()
+    """.trimIndent()

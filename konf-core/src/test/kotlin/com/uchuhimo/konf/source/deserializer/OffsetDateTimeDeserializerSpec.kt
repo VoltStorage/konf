@@ -29,9 +29,10 @@ import org.jetbrains.spek.api.dsl.on
 import java.time.OffsetDateTime
 
 object OffsetDateTimeDeserializerSpec : Spek({
-    val spec = object : ConfigSpec() {
-        val item by required<OffsetDateTimeWrapper>()
-    }
+    val spec =
+        object : ConfigSpec() {
+            val item by required<OffsetDateTimeWrapper>()
+        }
     val config by memoized {
         Config {
             addSpec(spec)
@@ -44,7 +45,7 @@ object OffsetDateTimeDeserializerSpec : Spek({
                 it("should succeed") {
                     assertThat(
                         this@apply[spec.item].offsetDateTime,
-                        equalTo(OffsetDateTime.parse("2007-12-03T10:15:30+01:00"))
+                        equalTo(OffsetDateTime.parse("2007-12-03T10:15:30+01:00")),
                     )
                 }
             }

@@ -33,10 +33,11 @@ object TreeNodeSpec : SubjectSpek<TreeNode>({
     subject {
         ContainerNode(
             mutableMapOf(
-                "level1" to ContainerNode(
-                    mutableMapOf("level2" to EmptyNode)
-                )
-            )
+                "level1" to
+                    ContainerNode(
+                        mutableMapOf("level2" to EmptyNode),
+                    ),
+            ),
         )
     }
     given("a tree node") {
@@ -54,11 +55,11 @@ object TreeNodeSpec : SubjectSpek<TreeNode>({
             it("should throw InvalidPathException") {
                 assertThat(
                     { subject[""] = EmptyNode },
-                    throws(has(PathConflictException::path, equalTo("")))
+                    throws(has(PathConflictException::path, equalTo(""))),
                 )
                 assertThat(
                     { subject["level1.level2.level3"] = EmptyNode },
-                    throws(has(PathConflictException::path, equalTo("level1.level2.level3")))
+                    throws(has(PathConflictException::path, equalTo("level1.level2.level3"))),
                 )
             }
         }
@@ -74,18 +75,20 @@ object TreeNodeSpec : SubjectSpek<TreeNode>({
         }
         on("merge two trees") {
             val facadeNode = 1.asTree()
-            val facade = mapOf(
-                "key1" to facadeNode,
-                "key2" to EmptyNode,
-                "key4" to mapOf("level2" to facadeNode)
-            ).asTree()
+            val facade =
+                mapOf(
+                    "key1" to facadeNode,
+                    "key2" to EmptyNode,
+                    "key4" to mapOf("level2" to facadeNode),
+                ).asTree()
             val fallbackNode = 2.asTree()
-            val fallback = mapOf(
-                "key1" to EmptyNode,
-                "key2" to fallbackNode,
-                "key3" to fallbackNode,
-                "key4" to mapOf("level2" to fallbackNode)
-            ).asTree()
+            val fallback =
+                mapOf(
+                    "key1" to EmptyNode,
+                    "key2" to fallbackNode,
+                    "key3" to fallbackNode,
+                    "key4" to mapOf("level2" to fallbackNode),
+                ).asTree()
             it("should return the merged tree when valid") {
                 assertThat(
                     (fallback + facade).toHierarchical(),
@@ -94,9 +97,9 @@ object TreeNodeSpec : SubjectSpek<TreeNode>({
                             "key1" to facadeNode,
                             "key2" to EmptyNode,
                             "key3" to fallbackNode,
-                            "key4" to mapOf("level2" to facadeNode)
-                        ).asTree().toHierarchical()
-                    )
+                            "key4" to mapOf("level2" to facadeNode),
+                        ).asTree().toHierarchical(),
+                    ),
                 )
                 assertThat(
                     facade.withFallback(fallback).toHierarchical(),
@@ -105,30 +108,31 @@ object TreeNodeSpec : SubjectSpek<TreeNode>({
                             "key1" to facadeNode,
                             "key2" to EmptyNode,
                             "key3" to fallbackNode,
-                            "key4" to mapOf("level2" to facadeNode)
-                        ).asTree().toHierarchical()
-                    )
+                            "key4" to mapOf("level2" to facadeNode),
+                        ).asTree().toHierarchical(),
+                    ),
                 )
                 assertThat(
                     (EmptyNode + facade).toHierarchical(),
-                    equalTo(facade.toHierarchical())
+                    equalTo(facade.toHierarchical()),
                 )
                 assertThat(
                     (fallback + EmptyNode).toHierarchical(),
-                    equalTo(EmptyNode.toHierarchical())
+                    equalTo(EmptyNode.toHierarchical()),
                 )
                 assertThat(
                     (fallback + mapOf("key1" to mapOf("key2" to EmptyNode)).asTree()).toHierarchical(),
                     equalTo(
                         mapOf(
-                            "key1" to mapOf(
-                                "key2" to EmptyNode
-                            ),
+                            "key1" to
+                                mapOf(
+                                    "key2" to EmptyNode,
+                                ),
                             "key2" to fallbackNode,
                             "key3" to fallbackNode,
-                            "key4" to mapOf("level2" to fallbackNode)
-                        ).asTree().toHierarchical()
-                    )
+                            "key4" to mapOf("level2" to fallbackNode),
+                        ).asTree().toHierarchical(),
+                    ),
                 )
             }
         }

@@ -31,7 +31,7 @@ object DefaultYamlProviderSpec : SubjectSpek<DefaultProviders>({
 
     given("a provider") {
         on("provide source from YAML file") {
-            val config = subject.file(tempFileOf(yamlContent, suffix = ".yaml")).toConfig()
+            val config = subject.file(tempFileOf(YAML_CONTENT, suffix = ".yaml")).toConfig()
             it("should provide as auto-detected file format") {
                 assertThat(config[item], equalTo("yaml"))
             }

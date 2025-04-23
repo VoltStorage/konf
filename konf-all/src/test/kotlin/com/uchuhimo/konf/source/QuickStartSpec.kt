@@ -29,74 +29,79 @@ import java.io.File
 
 object QuickStartSpec : Spek({
     on("use default loaders") {
-        val config = useFile {
-            Config { addSpec(ServerSpec) }
-                .from.yaml.file("server.yml")
-                .from.json.resource("server.json")
-                .from.env()
-                .from.systemProperties()
-        }
+        val config =
+            useFile {
+                Config { addSpec(ServerSpec) }
+                    .from.yaml.file("server.yml")
+                    .from.json.resource("server.json")
+                    .from.env()
+                    .from.systemProperties()
+            }
         it("should load all values") {
             assertThat(
                 config.toMap(),
-                equalTo(mapOf("server.host" to "127.0.0.1", "server.tcpPort" to 8080))
+                equalTo(mapOf("server.host" to "127.0.0.1", "server.tcpPort" to 8080)),
             )
         }
     }
     on("use default providers") {
-        val config = useFile {
-            Config { addSpec(ServerSpec) }.withSource(
-                Source.from.yaml.file("server.yml") +
-                    Source.from.json.resource("server.json") +
-                    Source.from.env() +
-                    Source.from.systemProperties()
-            )
-        }
+        val config =
+            useFile {
+                Config { addSpec(ServerSpec) }.withSource(
+                    Source.from.yaml.file("server.yml") +
+                        Source.from.json.resource("server.json") +
+                        Source.from.env() +
+                        Source.from.systemProperties(),
+                )
+            }
         it("should load all values") {
             assertThat(
                 config.toMap(),
-                equalTo(mapOf("server.host" to "127.0.0.1", "server.tcpPort" to 8080))
+                equalTo(mapOf("server.host" to "127.0.0.1", "server.tcpPort" to 8080)),
             )
         }
     }
     on("watch file") {
-        val config = useFile {
-            Config { addSpec(ServerSpec) }
-                .from.yaml.watchFile("server.yml")
-                .from.json.resource("server.json")
-                .from.env()
-                .from.systemProperties()
-        }
+        val config =
+            useFile {
+                Config { addSpec(ServerSpec) }
+                    .from.yaml.watchFile("server.yml")
+                    .from.json.resource("server.json")
+                    .from.env()
+                    .from.systemProperties()
+            }
         it("should load all values") {
             assertThat(
                 config.toMap(),
-                equalTo(mapOf("server.host" to "127.0.0.1", "server.tcpPort" to 8080))
+                equalTo(mapOf("server.host" to "127.0.0.1", "server.tcpPort" to 8080)),
             )
         }
     }
     on("cast config to value") {
-        val config = useFile {
-            Config()
-                .from.yaml.file("server.yml")
-                .from.json.resource("server.json")
-                .from.env()
-                .from.systemProperties()
-                .at("server")
-        }
+        val config =
+            useFile {
+                Config()
+                    .from.yaml.file("server.yml")
+                    .from.json.resource("server.json")
+                    .from.env()
+                    .from.systemProperties()
+                    .at("server")
+            }
         val server = config.toValue<Server>()
         it("should load all values") {
             assertThat(server, equalTo(Server(host = "127.0.0.1", tcpPort = 8080)))
         }
     }
     on("cast source to value") {
-        val source = useFile {
-            (
-                Source.from.yaml.file("server.yml") +
-                    Source.from.json.resource("server.json") +
-                    Source.from.env() +
-                    Source.from.systemProperties()
+        val source =
+            useFile {
+                (
+                    Source.from.yaml.file("server.yml") +
+                        Source.from.json.resource("server.json") +
+                        Source.from.env() +
+                        Source.from.systemProperties()
                 )["server"]
-        }
+            }
         val server = source.toValue<Server>()
         it("should load all values") {
             assertThat(server, equalTo(Server(host = "127.0.0.1", tcpPort = 8080)))
@@ -112,7 +117,7 @@ private fun <T> useFile(block: () -> T): T {
         server:
             host: 127.0.0.1
             tcp_port: 8080
-        """.trimIndent()
+        """.trimIndent(),
     )
     try {
         return block()

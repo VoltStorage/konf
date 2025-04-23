@@ -17,33 +17,27 @@
 package com.uchuhimo.konf
 
 import java.io.File
+import java.nio.file.Files.createTempDirectory
+import java.nio.file.Paths
+import kotlin.io.path.createTempFile
 import kotlin.text.lowercase
-
-/**
- * Throws [UnsupportedOperationException].
- *
- * @throws UnsupportedOperationException
- */
-@Suppress("NOTHING_TO_INLINE")
-inline fun unsupported(): Nothing {
-    throw UnsupportedOperationException()
-}
 
 internal fun getUnits(s: String): String {
     var i = s.length - 1
     while (i >= 0) {
         val c = s[i]
-        if (!c.isLetter())
+        if (!c.isLetter()) {
             break
+        }
         i -= 1
     }
     return s.substring(i + 1)
 }
 
 /**
- * Returns default value if string is empty, original string otherwise.
+ * Returns default value if the string is empty, original string otherwise.
  */
-fun String.notEmptyOr(default: String): String = if (isEmpty()) default else this
+fun String.notEmptyOr(default: String): String = ifEmpty { default }
 
 fun String.toLittleCase(): String {
     return if (this.all { it.isUpperCase() }) {
@@ -83,6 +77,7 @@ fun String.toCamelCase(): String {
                 previousIsUppercase = false
                 index += Character.charCount(codePoint)
             }
+
             capitalizeNext -> {
                 val upperCaseCodePoint = Character.toUpperCase(codePoint)
                 newCodePoints[outOffset++] = upperCaseCodePoint
@@ -90,6 +85,7 @@ fun String.toCamelCase(): String {
                 capitalizeNext = false
                 lowercaseNext = true
             }
+
             lowercaseNext -> {
                 val lowerCaseCodePoint = Character.toLowerCase(codePoint)
                 newCodePoints[outOffset++] = lowerCaseCodePoint
@@ -106,6 +102,7 @@ fun String.toCamelCase(): String {
                     previousIsUppercase = true
                 }
             }
+
             else -> {
                 newCodePoints[outOffset++] = codePoint
                 index += Character.charCount(codePoint)
@@ -114,7 +111,9 @@ fun String.toCamelCase(): String {
     }
     return if (outOffset != 0) {
         String(newCodePoints, 0, outOffset)
-    } else this
+    } else {
+        this
+    }
 }
 
 fun String.toLittleCamelCase(): String {
@@ -124,11 +123,19 @@ fun String.toLittleCamelCase(): String {
 fun tempDirectory(
     prefix: String = "tmp",
     suffix: String? = null,
-    directory: File? = null
+    directory: File? = null,
 ): File {
-    return createTempDir(prefix, suffix, directory)
+    val dirPath = directory?.toPath() ?: Paths.get(System.getProperty("java.io.tmpdir"))
+    val tempDir = createTempDirectory(dirPath, prefix + (suffix ?: ""))
+    return tempDir.toFile()
 }
 
-fun tempFile(prefix: String = "tmp", suffix: String? = null, directory: File? = null): File {
-    return createTempFile(prefix, suffix, directory)
+fun tempFile(
+    prefix: String = "tmp",
+    suffix: String? = null,
+    directory: File? = null,
+): File {
+    val dirPath = directory?.toPath() ?: Paths.get(System.getProperty("java.io.tmpdir"))
+    val tempFile = createTempFile(dirPath, prefix, suffix ?: "")
+    return tempFile.toFile()
 }

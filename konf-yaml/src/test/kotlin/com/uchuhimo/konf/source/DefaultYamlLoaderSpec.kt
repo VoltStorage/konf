@@ -36,7 +36,7 @@ object DefaultYamlLoaderSpec : SubjectSpek<DefaultLoaders>({
 
     given("a loader") {
         on("load from YAML file") {
-            val config = subject.file(tempFileOf(yamlContent, suffix = ".yaml"))
+            val config = subject.file(tempFileOf(YAML_CONTENT, suffix = ".yaml"))
             it("should load as auto-detected file format") {
                 assertThat(config[item], equalTo("yaml"))
             }

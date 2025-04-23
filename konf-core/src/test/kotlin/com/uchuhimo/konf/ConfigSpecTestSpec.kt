@@ -32,7 +32,11 @@ import kotlin.test.assertTrue
 
 object ConfigSpecTestSpec : Spek({
     given("a configSpec") {
-        fun testItem(spec: Spec, item: Item<*>, description: String) {
+        fun testItem(
+            spec: Spec,
+            item: Item<*>,
+            description: String,
+        ) {
             group("for $description, as an item") {
                 on("add to a configSpec") {
                     it("should be in the spec") {
@@ -55,17 +59,18 @@ object ConfigSpecTestSpec : Spek({
                             item.type,
                             equalTo(
                                 TypeFactory.defaultInstance()
-                                    .constructType(Int::class.javaObjectType)
-                            )
+                                    .constructType(Int::class.javaObjectType),
+                            ),
                         )
                     }
                 }
             }
         }
 
-        val specForRequired = object : ConfigSpec("a.b") {
-            val item by required<Int>("c.int", "description")
-        }
+        val specForRequired =
+            object : ConfigSpec("a.b") {
+                val item by required<Int>("c.int", "description")
+            }
         testItem(specForRequired, specForRequired.item, "a required item")
         group("for a required item") {
             val spec = specForRequired
@@ -81,9 +86,10 @@ object ConfigSpecTestSpec : Spek({
                 }
             }
         }
-        val specForOptional = object : ConfigSpec("a.b") {
-            val item by optional(1, "c.int", "description")
-        }
+        val specForOptional =
+            object : ConfigSpec("a.b") {
+                val item by optional(1, "c.int", "description")
+            }
         testItem(specForOptional, specForOptional.item, "an optional item")
         group("for an optional item") {
             val spec = specForOptional
@@ -102,9 +108,10 @@ object ConfigSpecTestSpec : Spek({
                 }
             }
         }
-        val specForLazy = object : ConfigSpec("a.b") {
-            val item by lazy<Int?>("c.int", "description") { 2 }
-        }
+        val specForLazy =
+            object : ConfigSpec("a.b") {
+                val item by lazy<Int?>("c.int", "description") { 2 }
+            }
         val config = Config { addSpec(specForLazy) }
         testItem(specForLazy, specForLazy.item, "a lazy item")
         group("for a lazy item") {
@@ -131,7 +138,7 @@ object ConfigSpecTestSpec : Spek({
             it("should throw RepeatedItemException") {
                 assertThat(
                     { spec.addItem(item) },
-                    throws(has(RepeatedItemException::name, equalTo("item")))
+                    throws(has(RepeatedItemException::name, equalTo("item"))),
                 )
             }
         }
@@ -145,7 +152,7 @@ object ConfigSpecTestSpec : Spek({
             it("should throw RepeatedInnerSpecException when adding repeated spec") {
                 assertThat(
                     { spec.addInnerSpec(innerSpec) },
-                    throws(has(RepeatedInnerSpecException::spec, equalTo(innerSpec)))
+                    throws(has(RepeatedInnerSpecException::spec, equalTo(innerSpec))),
                 )
             }
         }
@@ -185,7 +192,7 @@ object ConfigSpecTestSpec : Spek({
                         {
                             spec["a.bb.inner4"]
                         },
-                        throws(has(NoSuchPathException::path, equalTo("a.bb.inner4")))
+                        throws(has(NoSuchPathException::path, equalTo("a.bb.inner4"))),
                     )
                 }
             }
@@ -208,12 +215,15 @@ object ConfigSpecTestSpec : Spek({
             }
         }
         group("plus operation") {
-            val spec1 = object : ConfigSpec("a") {
-                val item1 by required<Int>()
-            }
-            val spec2 = object : ConfigSpec("b") {
-                val item2 by required<Int>()
-            }
+            val spec1 =
+                object : ConfigSpec("a") {
+                    val item1 by required<Int>()
+                }
+            val spec2 =
+                object : ConfigSpec("b") {
+                    val item2 by required<Int>()
+                }
+
             @Suppress("NAME_SHADOWING")
             val spec by memoized { spec1 + spec2 }
             on("add a valid item") {
@@ -228,7 +238,7 @@ object ConfigSpecTestSpec : Spek({
                 it("should throw RepeatedItemException") {
                     assertThat(
                         { spec.addItem(spec1.item1) },
-                        throws(has(RepeatedItemException::name, equalTo("item1")))
+                        throws(has(RepeatedItemException::name, equalTo("item1"))),
                     )
                 }
             }
@@ -245,12 +255,15 @@ object ConfigSpecTestSpec : Spek({
             }
         }
         group("withFallback operation") {
-            val spec1 = object : ConfigSpec("a") {
-                val item1 by required<Int>()
-            }
-            val spec2 = object : ConfigSpec("b") {
-                val item2 by required<Int>()
-            }
+            val spec1 =
+                object : ConfigSpec("a") {
+                    val item1 by required<Int>()
+                }
+            val spec2 =
+                object : ConfigSpec("b") {
+                    val item2 by required<Int>()
+                }
+
             @Suppress("NAME_SHADOWING")
             val spec by memoized { spec2.withFallback(spec1) }
             on("add a valid item") {
@@ -265,7 +278,7 @@ object ConfigSpecTestSpec : Spek({
                 it("should throw RepeatedItemException") {
                     assertThat(
                         { spec.addItem(spec1.item1) },
-                        throws(has(RepeatedItemException::name, equalTo("item1")))
+                        throws(has(RepeatedItemException::name, equalTo("item1"))),
                     )
                 }
             }

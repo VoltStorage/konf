@@ -16,4 +16,4 @@
 
 package com.uchuhimo.konf.source
 
-const val hoconContent = "source.test.type = conf"
+const val HOCON_CONTENT = "source.test.type = conf"

@@ -31,7 +31,7 @@ object DefaultTomlProviderSpec : SubjectSpek<DefaultProviders>({
 
     given("a provider") {
         on("provide source from TOML file") {
-            val config = subject.file(tempFileOf(tomlContent, suffix = ".toml")).toConfig()
+            val config = subject.file(tempFileOf(TOML_CONTENT, suffix = ".toml")).toConfig()
             it("should provide as auto-detected file format") {
                 assertThat(config[item], equalTo("toml"))
             }

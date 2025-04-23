@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("ktlint:standard:filename")
+
 package com.uchuhimo.konf.source
 
 import com.natpryce.hamkrest.assertion.assertThat
@@ -33,9 +35,9 @@ object ListSourceNodeSpec : SubjectSpek<ListSourceNode>({
                 equalTo(
                     mutableMapOf<String, TreeNode>(
                         "0" to EmptyNode,
-                        "1" to EmptyNode
-                    )
-                )
+                        "1" to EmptyNode,
+                    ),
+                ),
             )
         }
     }

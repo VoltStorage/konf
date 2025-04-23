@@ -31,7 +31,7 @@ data class SizeInBytes(
      * Number of bytes.
      */
     @JsonValue
-    val bytes: Long
+    val bytes: Long,
 ) : Serializable {
     init {
         require(bytes >= 0)
@@ -50,32 +50,36 @@ data class SizeInBytes(
         fun parse(input: String): SizeInBytes {
             val s = input.trim()
             val unitString = getUnits(s)
-            val numberString = s.substring(
-                0,
-                s.length - unitString.length
-            ).trim()
+            val numberString =
+                s.substring(
+                    0,
+                    s.length - unitString.length,
+                ).trim()
 
             // this would be caught later anyway, but the error message
             // is more helpful if we check it here.
-            if (numberString.isEmpty())
+            if (numberString.isEmpty()) {
                 throw ParseException("No number in size-in-bytes value '$input'")
+            }
 
-            val units = MemoryUnit.parseUnit(unitString)
-                ?: throw ParseException(
-                    "Could not parse size-in-bytes unit '$unitString'" +
-                        " (try k, K, kB, KiB, kilobytes, kibibytes)"
-                )
+            val units =
+                MemoryUnit.parseUnit(unitString)
+                    ?: throw ParseException(
+                        "Could not parse size-in-bytes unit '$unitString'" +
+                            " (try k, K, kB, KiB, kilobytes, kibibytes)",
+                    )
 
             try {
                 val result: BigInteger
                 // if the string is purely digits, parse as an integer to avoid
                 // possible precision loss; otherwise as a double.
-                result = if (numberString.matches("[0-9]+".toRegex())) {
-                    units.bytes.multiply(BigInteger(numberString))
-                } else {
-                    val resultDecimal = BigDecimal(units.bytes).multiply(BigDecimal(numberString))
-                    resultDecimal.toBigInteger()
-                }
+                result =
+                    if (numberString.matches("[0-9]+".toRegex())) {
+                        units.bytes.multiply(BigInteger(numberString))
+                    } else {
+                        val resultDecimal = BigDecimal(units.bytes).multiply(BigDecimal(numberString))
+                        resultDecimal.toBigInteger()
+                    }
                 return if (result.bitLength() < 64) {
                     SizeInBytes(result.toLong())
                 } else {
@@ -92,7 +96,7 @@ data class SizeInBytes(
             },
             KIBI {
                 override fun toInt(): Int = 1024
-            };
+            }, ;
 
             abstract fun toInt(): Int
         }
@@ -100,7 +104,7 @@ data class SizeInBytes(
         private enum class MemoryUnit(
             private val prefix: String,
             private val radix: Radix,
-            private val power: Int
+            private val power: Int,
         ) {
             BYTES("", Radix.KIBI, 0),
 
@@ -120,41 +124,42 @@ data class SizeInBytes(
             PEBIBYTES("pebi", Radix.KIBI, 5),
             EXBIBYTES("exbi", Radix.KIBI, 6),
             ZEBIBYTES("zebi", Radix.KIBI, 7),
-            YOBIBYTES("yobi", Radix.KIBI, 8);
+            YOBIBYTES("yobi", Radix.KIBI, 8),
+            ;
 
             internal val bytes: BigInteger = BigInteger.valueOf(radix.toInt().toLong()).pow(power)
 
             companion object {
-
-                private val unitsMap = mutableMapOf<String, MemoryUnit>().apply {
-                    for (unit in MemoryUnit.values()) {
-                        put(unit.prefix + "byte", unit)
-                        put(unit.prefix + "bytes", unit)
-                        if (unit.prefix.isEmpty()) {
-                            put("b", unit)
-                            put("B", unit)
-                            put("", unit) // no unit specified means bytes
-                        } else {
-                            val first = unit.prefix.substring(0, 1)
-                            val firstUpper = first.uppercase()
-                            when (unit.radix) {
-                                Radix.KILO -> {
-                                    if (unit.power == 1) {
-                                        put(first + "B", unit) // 512kB
-                                    } else {
-                                        put(firstUpper + "B", unit) // 512MB
+                private val unitsMap =
+                    mutableMapOf<String, MemoryUnit>().apply {
+                        for (unit in MemoryUnit.values()) {
+                            put(unit.prefix + "byte", unit)
+                            put(unit.prefix + "bytes", unit)
+                            if (unit.prefix.isEmpty()) {
+                                put("b", unit)
+                                put("B", unit)
+                                put("", unit) // no unit specified means bytes
+                            } else {
+                                val first = unit.prefix.substring(0, 1)
+                                val firstUpper = first.uppercase()
+                                when (unit.radix) {
+                                    Radix.KILO -> {
+                                        if (unit.power == 1) {
+                                            put(first + "B", unit) // 512kB
+                                        } else {
+                                            put(firstUpper + "B", unit) // 512MB
+                                        }
                                     }
-                                }
-                                Radix.KIBI -> {
-                                    put(first, unit) // 512m
-                                    put(firstUpper, unit) // 512M
-                                    put(firstUpper + "i", unit) // 512Mi
-                                    put(firstUpper + "iB", unit) // 512MiB
+                                    Radix.KIBI -> {
+                                        put(first, unit) // 512m
+                                        put(firstUpper, unit) // 512M
+                                        put(firstUpper + "i", unit) // 512Mi
+                                        put(firstUpper + "iB", unit) // 512MiB
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
                 internal fun parseUnit(unit: String): MemoryUnit? {
                     return unitsMap[unit]

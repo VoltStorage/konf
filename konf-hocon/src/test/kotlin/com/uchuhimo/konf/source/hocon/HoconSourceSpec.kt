@@ -55,28 +55,30 @@ object HoconSourceSpec : SubjectSpek<HoconSource>({
             }
         }
         on("use substitutions in source") {
-            val source = HoconProvider.string(
-                """
-                key1 = 1
-                key2 = ${'$'}{key1}
-                """.trimIndent()
-            )
+            val source =
+                HoconProvider.string(
+                    """
+                    key1 = 1
+                    key2 = ${'$'}{key1}
+                    """.trimIndent(),
+                )
             it("should resolve the key") {
                 assertThat(source["key2"].asValue<Int>(), equalTo(1))
             }
         }
         on("use substitutions in source when variables are in other sources") {
-            val source = (
-                HoconProvider.string(
-                    """
-                key1 = "1"
-                key2 = ${'$'}{key1}
-                key3 = "${'$'}{key4}"
-                key5 = "${'$'}{key1}+${'$'}{key4}"
-                key6 = "${"$$"}{key1}"
-                    """.trimIndent()
-                ) +
-                    mapOf("key4" to "4", "key1" to "2").asSource()
+            val source =
+                (
+                    HoconProvider.string(
+                        """
+                        key1 = "1"
+                        key2 = ${'$'}{key1}
+                        key3 = "${'$'}{key4}"
+                        key5 = "${'$'}{key1}+${'$'}{key4}"
+                        key6 = "${"$$"}{key1}"
+                        """.trimIndent(),
+                    ) +
+                        mapOf("key4" to "4", "key1" to "2").asSource()
                 ).substituted().substituted()
             it("should resolve the key") {
                 assertThat(source["key2"].asValue<Int>(), equalTo(1))

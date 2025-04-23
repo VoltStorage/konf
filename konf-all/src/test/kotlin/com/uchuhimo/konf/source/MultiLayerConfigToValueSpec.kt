@@ -26,28 +26,34 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 
 object MultiLayerConfigToValueSpec : Spek({
-    val yamlContent = """
+    val yamlContent =
+        """
 db:
   driverClassName: org.h2.Driver
   url: 'jdbc:h2:mem:db;DB_CLOSE_DELAY=-1'
-    """.trimIndent()
+        """.trimIndent()
 
-    val map = mapOf(
-        "driverClassName" to "org.h2.Driver",
-        "url" to "jdbc:h2:mem:db;DB_CLOSE_DELAY=-1"
-    )
+    val map =
+        mapOf(
+            "driverClassName" to "org.h2.Driver",
+            "url" to "jdbc:h2:mem:db;DB_CLOSE_DELAY=-1",
+        )
     on("load from multiple sources") {
-        val config = Config {
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        }
-            .from.yaml.string(yamlContent)
-            .from.yaml.file(
-                System.getenv("SERVICE_CONFIG")
-                    ?: "/opt/legacy-event-service/conf/legacy-event-service.yml",
-                true
-            )
-            .from.systemProperties()
-            .from.env()
+        val config =
+            Config {
+                mapper.configure(
+                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                    false,
+                )
+            }
+                .from.yaml.string(yamlContent)
+                .from.yaml.file(
+                    System.getenv("SERVICE_CONFIG")
+                        ?: "/opt/legacy-event-service/conf/legacy-event-service.yml",
+                    true,
+                )
+                .from.systemProperties()
+                .from.env()
         it("should cast to value correctly") {
             val db = config.toValue<ConfigTestReport>()
             assertThat(db.db, equalTo(map))

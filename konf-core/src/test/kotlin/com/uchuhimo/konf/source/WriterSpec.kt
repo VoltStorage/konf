@@ -33,13 +33,14 @@ import kotlin.test.assertTrue
 
 object WriterSpec : SubjectSpek<Writer>({
     subject {
-        val config = Config {
-            addSpec(
-                object : ConfigSpec() {
-                    val key by optional("value")
-                }
-            )
-        }
+        val config =
+            Config {
+                addSpec(
+                    object : ConfigSpec() {
+                        val key by optional("value")
+                    },
+                )
+            }
         config.toProperties
     }
 

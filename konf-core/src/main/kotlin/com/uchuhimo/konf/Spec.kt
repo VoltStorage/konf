@@ -129,7 +129,10 @@ interface Spec {
      */
     operator fun get(path: String): Spec = get(prefix.toPath(), path.toPath())
 
-    private fun get(prefix: Path, path: Path): Spec {
+    private fun get(
+        prefix: Path,
+        path: Path,
+    ): Spec {
         return if (path.isEmpty()) {
             this
         } else if (prefix.size >= path.size && prefix.subList(0, path.size) == path) {
@@ -137,13 +140,14 @@ interface Spec {
         } else {
             if (prefix.size < path.size && path.subList(0, prefix.size) == prefix) {
                 val pathForInnerSpec = path.subList(prefix.size, path.size).name
-                val filteredInnerSpecs = innerSpecs.mapNotNull { spec ->
-                    try {
-                        spec[pathForInnerSpec]
-                    } catch (_: NoSuchPathException) {
-                        null
+                val filteredInnerSpecs =
+                    innerSpecs.mapNotNull { spec ->
+                        try {
+                            spec[pathForInnerSpec]
+                        } catch (_: NoSuchPathException) {
+                            null
+                        }
                     }
-                }
                 if (filteredInnerSpecs.isEmpty()) {
                     throw NoSuchPathException(path.name)
                 } else if (filteredInnerSpecs.size == 1) {
@@ -165,7 +169,10 @@ interface Spec {
      */
     fun withPrefix(prefix: String): Spec = withPrefix(this.prefix.toPath(), prefix.toPath())
 
-    private fun withPrefix(prefix: Path, newPrefix: Path): Spec {
+    private fun withPrefix(
+        prefix: Path,
+        newPrefix: Path,
+    ): Spec {
         return if (newPrefix.isEmpty()) {
             this
         } else {
@@ -180,8 +187,9 @@ interface Spec {
      * @return config spec with the specified description
      */
     fun withDescription(description: String): Spec {
-        if (this.description == description)
+        if (this.description == description) {
             return this
+        }
         return ConfigSpec(prefix, items, innerSpecs, description)
     }
 
@@ -191,17 +199,18 @@ interface Spec {
          *
          * It will swallow all items added to it. Used for items belonged to no config spec.
          */
-        val dummy: Spec = object : Spec {
-            override val prefix: String = ""
+        val dummy: Spec =
+            object : Spec {
+                override val prefix: String = ""
 
-            override fun addItem(item: Item<*>) {}
+                override fun addItem(item: Item<*>) {}
 
-            override val items: Set<Item<*>> = emptySet()
+                override val items: Set<Item<*>> = emptySet()
 
-            override fun addInnerSpec(spec: Spec) {}
+                override fun addInnerSpec(spec: Spec) {}
 
-            override val innerSpecs: Set<Spec> = emptySet()
-        }
+                override val innerSpecs: Set<Spec> = emptySet()
+            }
     }
 }
 
@@ -212,27 +221,33 @@ interface Spec {
  * @param description description for this item
  * @return a property of a required item with prefix of this config spec
  */
-inline fun <reified T> Spec.required(name: String? = null, description: String = "") =
-    object : RequiredProperty<T>(this, name, description, null is T) {}
+inline fun <reified T> Spec.required(
+    name: String? = null,
+    description: String = "",
+) = object : RequiredProperty<T>(this, name, description, null is T) {}
 
 open class RequiredProperty<T>(
     private val spec: Spec,
     private val name: String? = null,
     private val description: String = "",
-    private val nullable: Boolean = false
+    private val nullable: Boolean = false,
 ) : PropertyDelegateProvider<Any?, ReadOnlyProperty<Any?, RequiredItem<T>>> {
-    override operator fun provideDelegate(thisRef: Any?, property: KProperty<*>):
-        ReadOnlyProperty<Any?, RequiredItem<T>> {
-        val type: JavaType = TypeFactory.defaultInstance().constructType(this::class.java)
-            .findSuperType(RequiredProperty::class.java).bindings.typeParameters[0]
-        val item = object : RequiredItem<T>(
-            spec,
-            name
-                ?: property.name,
-            description,
-            type,
-            nullable
-        ) {}
+    override operator fun provideDelegate(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ): ReadOnlyProperty<Any?, RequiredItem<T>> {
+        val type: JavaType =
+            TypeFactory.defaultInstance().constructType(this::class.java)
+                .findSuperType(RequiredProperty::class.java).bindings.typeParameters[0]
+        val item =
+            object : RequiredItem<T>(
+                spec,
+                name
+                    ?: property.name,
+                description,
+                type,
+                nullable,
+            ) {}
         return ReadOnlyProperty<Any?, RequiredItem<T>> { _, _ -> item }
     }
 }
@@ -246,29 +261,36 @@ open class RequiredProperty<T>(
  *
  * @return a property of an optional item with prefix of this config spec
  */
-inline fun <reified T> Spec.optional(default: T, name: String? = null, description: String = "") =
-    object : OptionalProperty<T>(this, default, name, description, null is T) {}
+inline fun <reified T> Spec.optional(
+    default: T,
+    name: String? = null,
+    description: String = "",
+) = object : OptionalProperty<T>(this, default, name, description, null is T) {}
 
 open class OptionalProperty<T>(
     private val spec: Spec,
     private val default: T,
     private val name: String? = null,
     private val description: String = "",
-    private val nullable: Boolean = false
+    private val nullable: Boolean = false,
 ) : PropertyDelegateProvider<Any?, ReadOnlyProperty<Any?, OptionalItem<T>>> {
-    override operator fun provideDelegate(thisRef: Any?, property: KProperty<*>):
-        ReadOnlyProperty<Any?, OptionalItem<T>> {
-        val type: JavaType = TypeFactory.defaultInstance().constructType(this::class.java)
-            .findSuperType(OptionalProperty::class.java).bindings.typeParameters[0]
-        val item = object : OptionalItem<T>(
-            spec,
-            name
-                ?: property.name,
-            default,
-            description,
-            type,
-            nullable
-        ) {}
+    override operator fun provideDelegate(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ): ReadOnlyProperty<Any?, OptionalItem<T>> {
+        val type: JavaType =
+            TypeFactory.defaultInstance().constructType(this::class.java)
+                .findSuperType(OptionalProperty::class.java).bindings.typeParameters[0]
+        val item =
+            object : OptionalItem<T>(
+                spec,
+                name
+                    ?: property.name,
+                default,
+                description,
+                type,
+                nullable,
+            ) {}
         return ReadOnlyProperty<Any?, OptionalItem<T>> { _, _ -> item }
     }
 }
@@ -284,30 +306,33 @@ open class OptionalProperty<T>(
 inline fun <reified T> Spec.lazy(
     name: String? = null,
     description: String = "",
-    noinline thunk: (config: ItemContainer) -> T
-) =
-    object : LazyProperty<T>(this, thunk, name, description, null is T) {}
+    noinline thunk: (config: ItemContainer) -> T,
+) = object : LazyProperty<T>(this, thunk, name, description, null is T) {}
 
 open class LazyProperty<T>(
     private val spec: Spec,
     private val thunk: (config: ItemContainer) -> T,
     private val name: String? = null,
     private val description: String = "",
-    private val nullable: Boolean = false
+    private val nullable: Boolean = false,
 ) : PropertyDelegateProvider<Any?, ReadOnlyProperty<Any?, LazyItem<T>>> {
-    override operator fun provideDelegate(thisRef: Any?, property: KProperty<*>):
-        ReadOnlyProperty<Any?, LazyItem<T>> {
-        val type: JavaType = TypeFactory.defaultInstance().constructType(this::class.java)
-            .findSuperType(LazyProperty::class.java).bindings.typeParameters[0]
-        val item = object : LazyItem<T>(
-            spec,
-            name
-                ?: property.name,
-            thunk,
-            description,
-            type,
-            nullable
-        ) {}
+    override operator fun provideDelegate(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ): ReadOnlyProperty<Any?, LazyItem<T>> {
+        val type: JavaType =
+            TypeFactory.defaultInstance().constructType(this::class.java)
+                .findSuperType(LazyProperty::class.java).bindings.typeParameters[0]
+        val item =
+            object : LazyItem<T>(
+                spec,
+                name
+                    ?: property.name,
+                thunk,
+                description,
+                type,
+                nullable,
+            ) {}
         return ReadOnlyProperty<Any?, LazyItem<T>> { _, _ -> item }
     }
 }

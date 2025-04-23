@@ -39,9 +39,10 @@ object JsSourceLoadSpec : SubjectSpek<Config>({
 object JsSourceReloadSpec : SubjectSpek<Config>({
 
     subject {
-        val config = Config {
-            addSpec(ConfigForLoad)
-        }.from.js.resource("source/source.js")
+        val config =
+            Config {
+                addSpec(ConfigForLoad)
+            }.from.js.resource("source/source.js")
         val js = config.toJs.toText()
         Config {
             addSpec(ConfigForLoad)

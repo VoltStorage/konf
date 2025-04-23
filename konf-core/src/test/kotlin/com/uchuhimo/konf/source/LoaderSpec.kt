@@ -33,9 +33,10 @@ import spark.Service
 import java.util.concurrent.TimeUnit
 
 object LoaderSpec : SubjectSpek<Loader>({
-    val parentConfig = Config {
-        addSpec(SourceType)
-    }
+    val parentConfig =
+        Config {
+            addSpec(SourceType)
+        }
     subject {
         parentConfig.from.properties
     }
@@ -51,9 +52,10 @@ object LoaderSpec : SubjectSpek<Loader>({
             }
         }
         on("load from input stream") {
-            val config = subject.inputStream(
-                tempFileOf("type = inputStream").inputStream()
-            )
+            val config =
+                subject.inputStream(
+                    tempFileOf("type = inputStream").inputStream(),
+                )
             it("should return a config which contains value from input stream") {
                 assertThat(config[SourceType.type], equalTo("inputStream"))
             }
@@ -128,7 +130,7 @@ object LoaderSpec : SubjectSpek<Loader>({
                 file,
                 delayTime = 1,
                 unit = TimeUnit.SECONDS,
-                context = Dispatchers.Sequential
+                context = Dispatchers.Sequential,
             ) { config, _ ->
                 newValue = config[SourceType.type]
             }
@@ -271,14 +273,15 @@ object LoaderSpec : SubjectSpek<Loader>({
         on("load from watched file URL with listener") {
             val file = tempFileOf("type = originalValue")
             var newValue = ""
-            val config = subject.watchUrl(
-                file.toURI().toURL(),
-                period = 1,
-                unit = TimeUnit.SECONDS,
-                context = Dispatchers.Sequential
-            ) { config, _ ->
-                newValue = config[SourceType.type]
-            }
+            val config =
+                subject.watchUrl(
+                    file.toURI().toURL(),
+                    period = 1,
+                    unit = TimeUnit.SECONDS,
+                    context = Dispatchers.Sequential,
+                ) { config, _ ->
+                    newValue = config[SourceType.type]
+                }
             val originalValue = config[SourceType.type]
             file.writeText("type = newValue")
             runBlocking(Dispatchers.Sequential) {
@@ -335,7 +338,7 @@ object LoaderSpec : SubjectSpek<Loader>({
             it("should throw SourceNotFoundException") {
                 assertThat(
                     { subject.resource("source/no-provider.properties") },
-                    throws<SourceNotFoundException>()
+                    throws<SourceNotFoundException>(),
                 )
             }
         }

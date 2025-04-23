@@ -30,8 +30,10 @@ object XmlProviderSpec : SubjectSpek<XmlProvider>({
     subject { XmlProvider }
 
     //language=XML
-    fun xmlDoc(name: String, value: String) =
-        """
+    fun xmlDoc(
+        name: String,
+        value: String,
+    ) = """
         <?xml version="1.0" encoding="UTF-8"?>
         <configuration>
             <property>
@@ -43,31 +45,52 @@ object XmlProviderSpec : SubjectSpek<XmlProvider>({
 
     given("a XML provider") {
         on("create source from reader") {
-            val source = subject.reader(xmlDoc("type", "reader").reader())
+            val source =
+                subject.reader(
+                    xmlDoc(
+                        "type",
+                        "reader",
+                    ).reader(),
+                )
             it("should have correct type") {
                 assertThat(source.info["type"], equalTo("XML"))
             }
             it("should return a source which contains value from reader") {
-                assertThat(source["type"].asValue<String>(), equalTo("reader"))
+                assertThat(
+                    source["type"].asValue<String>(),
+                    equalTo("reader"),
+                )
             }
         }
         on("create source from input stream") {
-            val source = subject.inputStream(
-                tempFileOf(xmlDoc("type", "inputStream")).inputStream()
-            )
+            val source =
+                subject.inputStream(
+                    tempFileOf(
+                        xmlDoc(
+                            "type",
+                            "inputStream",
+                        ),
+                    ).inputStream(),
+                )
             it("should have correct type") {
                 assertThat(source.info["type"], equalTo("XML"))
             }
             it("should return a source which contains value from input stream") {
-                assertThat(source["type"].asValue<String>(), equalTo("inputStream"))
+                assertThat(
+                    source["type"].asValue<String>(),
+                    equalTo("inputStream"),
+                )
             }
         }
         on("create source from an empty file") {
-            val file = tempFileOf("<?xml version=\"1.0\" encoding=\"UTF-8\"?><configuration></configuration>")
+            val file =
+                tempFileOf(
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?><configuration></configuration>",
+                )
             it("should return an empty source") {
                 assertThat(
                     subject.file(file).tree.children,
-                    equalTo(mutableMapOf())
+                    equalTo(mutableMapOf()),
                 )
             }
         }

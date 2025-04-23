@@ -30,7 +30,7 @@ object Versions {
 
     // Since 1.8, the minimum supported runtime version is JDK 11.
     const val GOOGLE_JAVA_FORMAT = "1.26.0"
-    const val KTLINT = "1.5.0"
+    const val KTLINT = "1.2.1"
 }
 
 fun String?.withColon() = this?.let { ":$this" } ?: ""

@@ -25,30 +25,38 @@ import org.jetbrains.spek.api.dsl.on
 
 object MultipleDefaultLoadersSpec : Spek({
     on("load from multiple sources") {
-        val config = Config {
-            addSpec(DefaultLoadersConfig)
-        }
+        val config =
+            Config {
+                addSpec(DefaultLoadersConfig)
+            }
         val item = DefaultLoadersConfig.type
         val afterLoadEnv = config.from.env()
         System.setProperty(config.nameOf(DefaultLoadersConfig.type), "system")
         val afterLoadSystemProperties = afterLoadEnv.from.systemProperties()
-        val afterLoadHocon = afterLoadSystemProperties.from.hocon.string(hoconContent)
-        val afterLoadJson = afterLoadHocon.from.json.string(jsonContent)
-        val afterLoadProperties = afterLoadJson.from.properties.string(propertiesContent)
-        val afterLoadToml = afterLoadProperties.from.toml.string(tomlContent)
+        val afterLoadHocon =
+            afterLoadSystemProperties.from.hocon.string(
+                HOCON_CONTENT,
+            )
+        val afterLoadJson = afterLoadHocon.from.json.string(JSON_CONTENT)
+        val afterLoadProperties =
+            afterLoadJson.from.properties.string(
+                PROPERTIES_CONTENT,
+            )
+        val afterLoadToml = afterLoadProperties.from.toml.string(TOML_CONTENT)
         val afterLoadXml = afterLoadToml.from.xml.string(xmlContent)
-        val afterLoadYaml = afterLoadXml.from.yaml.string(yamlContent)
+        val afterLoadYaml = afterLoadXml.from.yaml.string(YAML_CONTENT)
         val afterLoadFlat = afterLoadYaml.from.map.flat(mapOf("source.test.type" to "flat"))
         val afterLoadKv = afterLoadFlat.from.map.kv(mapOf("source.test.type" to "kv"))
-        val afterLoadHierarchical = afterLoadKv.from.map.hierarchical(
-            mapOf(
-                "source" to
-                    mapOf(
-                        "test" to
-                            mapOf("type" to "hierarchical")
-                    )
+        val afterLoadHierarchical =
+            afterLoadKv.from.map.hierarchical(
+                mapOf(
+                    "source" to
+                        mapOf(
+                            "test" to
+                                mapOf("type" to "hierarchical"),
+                        ),
+                ),
             )
-        )
         it("should load the corresponding value in each layer") {
             assertThat(afterLoadEnv[item], equalTo("env"))
             assertThat(afterLoadSystemProperties[item], equalTo("system"))
@@ -66,7 +74,7 @@ object MultipleDefaultLoadersSpec : Spek({
 })
 
 //language=Json
-const val jsonContent =
+const val JSON_CONTENT =
     """
 {
   "source": {

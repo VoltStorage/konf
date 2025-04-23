@@ -50,11 +50,11 @@ object FacadeSourceSpec : Spek({
                 assertThat(source[key].asValue<String>(), equalTo(facadeSource[key].asValue<String>()))
                 assertThat(
                     source.getOrNull(path)?.asValue<String>(),
-                    equalTo(facadeSource.getOrNull(path)?.asValue<String>())
+                    equalTo(facadeSource.getOrNull(path)?.asValue<String>()),
                 )
                 assertThat(
                     source.getOrNull(key)?.asValue<String>(),
-                    equalTo(facadeSource.getOrNull(key)?.asValue<String>())
+                    equalTo(facadeSource.getOrNull(key)?.asValue<String>()),
                 )
             }
         }
@@ -73,11 +73,11 @@ object FacadeSourceSpec : Spek({
                 assertThat(source[key].asValue<String>(), equalTo(fallbackSource[key].asValue<String>()))
                 assertThat(
                     source.getOrNull(path)?.asValue<String>(),
-                    equalTo(fallbackSource.getOrNull(path)?.asValue<String>())
+                    equalTo(fallbackSource.getOrNull(path)?.asValue<String>()),
                 )
                 assertThat(
                     source.getOrNull(key)?.asValue<String>(),
-                    equalTo(fallbackSource.getOrNull(key)?.asValue<String>())
+                    equalTo(fallbackSource.getOrNull(key)?.asValue<String>()),
                 )
             }
             it("contains value in facade source") {

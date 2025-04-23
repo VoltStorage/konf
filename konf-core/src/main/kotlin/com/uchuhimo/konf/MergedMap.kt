@@ -48,7 +48,10 @@ class MergedMap<K, V>(val fallback: MutableMap<K, V>, val facade: MutableMap<K, 
         fallback.clear()
     }
 
-    override fun put(key: K, value: V): V? {
+    override fun put(
+        key: K,
+        value: V,
+    ): V? {
         return facade.put(key, value)
     }
 

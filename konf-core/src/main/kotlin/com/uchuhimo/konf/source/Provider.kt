@@ -21,12 +21,12 @@ import com.uchuhimo.konf.source.json.JsonProvider
 import com.uchuhimo.konf.source.properties.PropertiesProvider
 import org.reflections.ReflectionUtils
 import org.reflections.Reflections
-import org.reflections.scanners.SubTypesScanner
-import org.reflections.scanners.TypeAnnotationsScanner
+import org.reflections.scanners.Scanners
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.io.Reader
+import java.net.URI
 import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
 
@@ -57,7 +57,10 @@ interface Provider {
      * @param optional whether this source is optional
      * @return a new source from specified file
      */
-    fun file(file: File, optional: Boolean = false): Source {
+    fun file(
+        file: File,
+        optional: Boolean = false,
+    ): Source {
         val extendContext: Source.() -> Unit = {
             info["file"] = file.toString()
         }
@@ -76,7 +79,10 @@ interface Provider {
      * @param optional whether this source is optional
      * @return a new source from specified file path
      */
-    fun file(file: String, optional: Boolean = false): Source = file(File(file), optional)
+    fun file(
+        file: String,
+        optional: Boolean = false,
+    ): Source = file(File(file), optional)
 
     /**
      * Returns a new source from specified string.
@@ -84,9 +90,10 @@ interface Provider {
      * @param content specified string
      * @return a new source from specified string
      */
-    fun string(content: String): Source = reader(content.reader()).apply {
-        info["content"] = "\"\n$content\n\""
-    }
+    fun string(content: String): Source =
+        reader(content.reader()).apply {
+            info["content"] = "\"\n$content\n\""
+        }
 
     /**
      * Returns a new source from specified byte array.
@@ -108,7 +115,11 @@ interface Provider {
      * @param length the length of the portion of the array to read
      * @return a new source from specified portion of byte array
      */
-    fun bytes(content: ByteArray, offset: Int, length: Int): Source {
+    fun bytes(
+        content: ByteArray,
+        offset: Int,
+        length: Int,
+    ): Source {
         return content.inputStream(offset, length).use {
             inputStream(it)
         }
@@ -121,7 +132,10 @@ interface Provider {
      * @param optional whether this source is optional
      * @return a new source from specified url
      */
-    fun url(url: URL, optional: Boolean = false): Source {
+    fun url(
+        url: URL,
+        optional: Boolean = false,
+    ): Source {
         // from com.fasterxml.jackson.core.JsonFactory._optimizedStreamFromURL in version 2.8.9
         val extendContext: Source.() -> Unit = {
             info["url"] = url.toString()
@@ -162,7 +176,10 @@ interface Provider {
      * @param optional whether this source is optional
      * @return a new source from specified url string
      */
-    fun url(url: String, optional: Boolean = false): Source = url(URL(url), optional)
+    fun url(
+        url: String,
+        optional: Boolean = false,
+    ): Source = url(URI(url).toURL(), optional)
 
     /**
      * Returns a new source from specified resource.
@@ -171,20 +188,24 @@ interface Provider {
      * @param optional whether this source is optional
      * @return a new source from specified resource
      */
-    fun resource(resource: String, optional: Boolean = false): Source {
+    fun resource(
+        resource: String,
+        optional: Boolean = false,
+    ): Source {
         val extendContext: Source.() -> Unit = {
             info["resource"] = resource
         }
         val loader = Thread.currentThread().contextClassLoader
-        val e = try {
-            loader.getResources(resource)
-        } catch (ex: IOException) {
-            if (optional) {
-                return EmptyMapSource().apply(extendContext)
-            } else {
-                throw ex
+        val e =
+            try {
+                loader.getResources(resource)
+            } catch (ex: IOException) {
+                if (optional) {
+                    return EmptyMapSource().apply(extendContext)
+                } else {
+                    throw ex
+                }
             }
-        }
         if (!e.hasMoreElements()) {
             if (optional) {
                 return EmptyMapSource().apply(extendContext)
@@ -210,59 +231,71 @@ interface Provider {
      */
     fun map(transform: (Source) -> Source): Provider {
         return object : Provider {
-            override fun reader(reader: Reader): Source =
-                this@Provider.reader(reader).let(transform)
+            override fun reader(reader: Reader): Source = this@Provider.reader(reader).let(transform)
 
-            override fun inputStream(inputStream: InputStream): Source =
-                this@Provider.inputStream(inputStream).let(transform)
+            override fun inputStream(inputStream: InputStream): Source = this@Provider.inputStream(inputStream).let(transform)
 
-            override fun file(file: File, optional: Boolean): Source =
-                this@Provider.file(file, optional).let(transform)
+            override fun file(
+                file: File,
+                optional: Boolean,
+            ): Source = this@Provider.file(file, optional).let(transform)
 
-            override fun file(file: String, optional: Boolean): Source =
-                this@Provider.file(file, optional).let(transform)
+            override fun file(
+                file: String,
+                optional: Boolean,
+            ): Source = this@Provider.file(file, optional).let(transform)
 
-            override fun string(content: String): Source =
-                this@Provider.string(content).let(transform)
+            override fun string(content: String): Source = this@Provider.string(content).let(transform)
 
-            override fun bytes(content: ByteArray): Source =
-                this@Provider.bytes(content).let(transform)
+            override fun bytes(content: ByteArray): Source = this@Provider.bytes(content).let(transform)
 
-            override fun bytes(content: ByteArray, offset: Int, length: Int): Source =
-                this@Provider.bytes(content, offset, length).let(transform)
+            override fun bytes(
+                content: ByteArray,
+                offset: Int,
+                length: Int,
+            ): Source = this@Provider.bytes(content, offset, length).let(transform)
 
-            override fun url(url: URL, optional: Boolean): Source =
-                this@Provider.url(url, optional).let(transform)
+            override fun url(
+                url: URL,
+                optional: Boolean,
+            ): Source = this@Provider.url(url, optional).let(transform)
 
-            override fun url(url: String, optional: Boolean): Source =
-                this@Provider.url(url, optional).let(transform)
+            override fun url(
+                url: String,
+                optional: Boolean,
+            ): Source = this@Provider.url(url, optional).let(transform)
 
-            override fun resource(resource: String, optional: Boolean): Source =
-                this@Provider.resource(resource, optional).let(transform)
+            override fun resource(
+                resource: String,
+                optional: Boolean,
+            ): Source = this@Provider.resource(resource, optional).let(transform)
         }
     }
 
     companion object {
-        private val extensionToProvider = ConcurrentHashMap(
-            mutableMapOf(
-                "json" to JsonProvider,
-                "properties" to PropertiesProvider
+        private val extensionToProvider =
+            ConcurrentHashMap(
+                mutableMapOf(
+                    "json" to JsonProvider,
+                    "properties" to PropertiesProvider,
+                ),
             )
-        )
 
         init {
-            val reflections = Reflections(
-                "com.uchuhimo.konf",
-                SubTypesScanner(),
-                TypeAnnotationsScanner()
-            )
-            val providers = reflections.getSubTypesOf(Provider::class.java)
-                .intersect(reflections.getTypesAnnotatedWith(RegisterExtension::class.java))
+            val reflections =
+                Reflections(
+                    "com.uchuhimo.konf",
+                    Scanners.SubTypes,
+                    Scanners.TypesAnnotated,
+                )
+            val providers =
+                reflections.getSubTypesOf(Provider::class.java)
+                    .intersect(reflections.getTypesAnnotatedWith(RegisterExtension::class.java))
             for (provider in providers) {
                 for (
-                    annotation in ReflectionUtils.getAnnotations(provider).filter {
-                        it.annotationClass == RegisterExtension::class
-                    }
+                annotation in ReflectionUtils.getAnnotations(provider).filter {
+                    it.annotationClass == RegisterExtension::class
+                }
                 ) {
                     for (extension in (annotation as RegisterExtension).value) {
                         registerExtension(extension, provider.kotlin.objectInstance!! as Provider)
@@ -277,7 +310,10 @@ interface Provider {
          * @param extension the file extension
          * @param provider the corresponding provider
          */
-        fun registerExtension(extension: String, provider: Provider) {
+        fun registerExtension(
+            extension: String,
+            provider: Provider,
+        ) {
             extensionToProvider[extension] = provider
         }
 
@@ -286,8 +322,7 @@ interface Provider {
          *
          * @param extension the file extension
          */
-        fun unregisterExtension(extension: String): Provider? =
-            extensionToProvider.remove(extension)
+        fun unregisterExtension(extension: String): Provider? = extensionToProvider.remove(extension)
 
         /**
          * Returns corresponding provider based on extension.
@@ -297,8 +332,7 @@ interface Provider {
          * @param extension the file extension
          * @return the corresponding provider based on extension
          */
-        fun of(extension: String): Provider? =
-            extensionToProvider[extension]
+        fun of(extension: String): Provider? = extensionToProvider[extension]
     }
 }
 

@@ -27,19 +27,20 @@ class NetworkBuffer {
         val type by optional(
             Type.OFF_HEAP,
             description =
-            """
+                """
                 | type of network buffer.
                 | two type:
                 | - on-heap
                 | - off-heap
                 | buffer is off-heap by default.
-                """.trimMargin("| ")
+                """.trimMargin("| "),
         )
 
         val offset by optional<Int?>(null, description = "initial offset of buffer")
     }
 
     enum class Type {
-        ON_HEAP, OFF_HEAP
+        ON_HEAP,
+        OFF_HEAP,
     }
 }

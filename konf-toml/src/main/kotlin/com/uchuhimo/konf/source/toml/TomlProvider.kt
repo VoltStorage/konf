@@ -30,11 +30,9 @@ import java.io.Reader
  */
 @RegisterExtension(["toml"])
 object TomlProvider : Provider {
-    override fun reader(reader: Reader): Source =
-        Toml().read(reader).toMap().asSource(type = "TOML")
+    override fun reader(reader: Reader): Source = Toml().read(reader).toMap().asSource(type = "TOML")
 
-    override fun inputStream(inputStream: InputStream): Source =
-        Toml().read(inputStream).toMap().asSource(type = "TOML")
+    override fun inputStream(inputStream: InputStream): Source = Toml().read(inputStream).toMap().asSource(type = "TOML")
 
     @JavaApi
     @JvmStatic

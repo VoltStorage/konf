@@ -28,35 +28,40 @@ enum class Feature(val enabledByDefault: Boolean) {
      * Feature is disabled by default.
      */
     FAIL_ON_UNKNOWN_PATH(false),
+
     /**
      * Feature that determines whether loading keys from sources case-insensitively.
      *
      * Feature is disabled by default.
      */
     LOAD_KEYS_CASE_INSENSITIVELY(false),
+
     /**
      * Feature that determines whether loading keys from sources as little camel case.
      *
      * Feature is enabled by default.
      */
     LOAD_KEYS_AS_LITTLE_CAMEL_CASE(true),
+
     /**
      * Feature that determines whether sources are optional by default.
      *
      * Feature is disabled by default.
      */
     OPTIONAL_SOURCE_BY_DEFAULT(false),
+
     /**
      * Feature that determines whether sources should be substituted before loaded into config.
      *
      * Feature is enabled by default.
      */
     SUBSTITUTE_SOURCE_BEFORE_LOADED(true),
+
     /**
      * Feature that writes descriptions assigned to [Item]s as comments
      * above the written configuration value.
      *
      * Feature is disabled by default.
      */
-    WRITE_DESCRIPTIONS_AS_COMMENTS(false)
+    WRITE_DESCRIPTIONS_AS_COMMENTS(false),
 }

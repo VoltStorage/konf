@@ -40,9 +40,10 @@ object YamlProviderSpec : SubjectSpek<YamlProvider>({
             }
         }
         on("create source from input stream") {
-            val source = subject.inputStream(
-                tempFileOf("type: inputStream").inputStream()
-            )
+            val source =
+                subject.inputStream(
+                    tempFileOf("type: inputStream").inputStream(),
+                )
             it("should have correct type") {
                 assertThat(source.info["type"], equalTo("YAML"))
             }
@@ -55,7 +56,7 @@ object YamlProviderSpec : SubjectSpek<YamlProvider>({
             it("should return an empty source") {
                 assertThat(
                     subject.file(file).tree.children,
-                    equalTo(mutableMapOf())
+                    equalTo(mutableMapOf()),
                 )
             }
         }

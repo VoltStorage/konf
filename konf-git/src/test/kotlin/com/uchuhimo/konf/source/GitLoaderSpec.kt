@@ -35,9 +35,10 @@ import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
 object GitLoaderSpec : SubjectSpek<Loader>({
-    val parentConfig = Config {
-        addSpec(SourceType)
-    }
+    val parentConfig =
+        Config {
+            addSpec(SourceType)
+        }
     subject {
         Loader(parentConfig, PropertiesProvider)
     }
@@ -71,7 +72,7 @@ object GitLoaderSpec : SubjectSpek<Loader>({
                     "test",
                     period = 1,
                     unit = TimeUnit.SECONDS,
-                    context = Dispatchers.Sequential
+                    context = Dispatchers.Sequential,
                 )
             },
             "load from watched git repository to the given directory" to { loader: Loader, repo: String ->
@@ -82,9 +83,9 @@ object GitLoaderSpec : SubjectSpek<Loader>({
                     branch = Constants.HEAD,
                     unit = TimeUnit.SECONDS,
                     context = Dispatchers.Sequential,
-                    optional = false
+                    optional = false,
                 )
-            }
+            },
         ).forEach { (description, func) ->
             on(description) {
                 tempDirectory(prefix = "remote_git_repo", suffix = ".git").let { dir ->
@@ -144,15 +145,16 @@ object GitLoaderSpec : SubjectSpek<Loader>({
                 }
                 val repo = dir.toURI()
                 var newValue = ""
-                val config = subject.watchGit(
-                    repo.toString(),
-                    "test",
-                    period = 1,
-                    unit = TimeUnit.SECONDS,
-                    context = Dispatchers.Sequential
-                ) { config, _ ->
-                    newValue = config[SourceType.type]
-                }
+                val config =
+                    subject.watchGit(
+                        repo.toString(),
+                        "test",
+                        period = 1,
+                        unit = TimeUnit.SECONDS,
+                        context = Dispatchers.Sequential,
+                    ) { config, _ ->
+                        newValue = config[SourceType.type]
+                    }
                 val originalValue = config[SourceType.type]
                 file.writeText("type = newValue")
                 Git.open(dir).use { git ->

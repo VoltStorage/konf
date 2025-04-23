@@ -29,9 +29,10 @@ import org.jetbrains.spek.api.dsl.on
 import java.time.Duration
 
 object DurationDeserializerSpec : Spek({
-    val spec = object : ConfigSpec() {
-        val item by required<DurationWrapper>()
-    }
+    val spec =
+        object : ConfigSpec() {
+            val item by required<DurationWrapper>()
+        }
     val config by memoized {
         Config {
             addSpec(spec)
@@ -44,7 +45,7 @@ object DurationDeserializerSpec : Spek({
                 it("should succeed") {
                     assertThat(
                         this@apply[spec.item].duration,
-                        equalTo(Duration.parse("P2DT3H4M"))
+                        equalTo(Duration.parse("P2DT3H4M")),
                     )
                 }
             }

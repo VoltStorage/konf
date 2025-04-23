@@ -29,9 +29,10 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 
 object StringDeserializerSpec : Spek({
-    val spec = object : ConfigSpec() {
-        val item by required<StringWrapper>()
-    }
+    val spec =
+        object : ConfigSpec() {
+            val item by required<StringWrapper>()
+        }
     val config by memoized {
         Config {
             addSpec(spec)

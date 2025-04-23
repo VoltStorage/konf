@@ -26,38 +26,43 @@ import java.util.Collections
 
 interface SubstitutableNode : ValueNode {
     fun substitute(value: String): TreeNode
+
     val substituted: Boolean
     val originalValue: Any?
 }
 
-class ValueSourceNode @JvmOverloads constructor(
-    override val value: Any,
-    override val substituted: Boolean = false,
-    override val originalValue: Any? = null,
-    override var comments: String = ""
-) : SubstitutableNode {
-
-    override fun substitute(value: String): TreeNode {
-        return ValueSourceNode(value, true, originalValue ?: this.value, this.comments)
+class ValueSourceNode
+    @JvmOverloads
+    constructor(
+        override val value: Any,
+        override val substituted: Boolean = false,
+        override val originalValue: Any? = null,
+        override var comments: String = "",
+    ) : SubstitutableNode {
+        override fun substitute(value: String): TreeNode {
+            return ValueSourceNode(value, true, originalValue ?: this.value, this.comments)
+        }
     }
-}
 
 object NullSourceNode : NullNode {
     override val children: MutableMap<String, TreeNode> = emptyMutableMap
     override var comments: String = ""
 }
 
-open class ListSourceNode @JvmOverloads constructor(
-    override val list: List<TreeNode>,
-    override var isPlaceHolder: Boolean = false,
-    override var comments: String = ""
-) : ListNode, MapNode {
-    override val children: MutableMap<String, TreeNode>
-        get() = Collections.unmodifiableMap(
-            list.withIndex().associate { (key, value) -> key.toString() to value }
-        )
+open class ListSourceNode
+    @JvmOverloads
+    constructor(
+        override val list: List<TreeNode>,
+        override var isPlaceHolder: Boolean = false,
+        override var comments: String = "",
+    ) : ListNode, MapNode {
+        override val children: MutableMap<String, TreeNode>
+            get() =
+                Collections.unmodifiableMap(
+                    list.withIndex().associate { (key, value) -> key.toString() to value },
+                )
 
-    override fun withList(list: List<TreeNode>): ListNode {
-        return ListSourceNode(list, comments = this.comments)
+        override fun withList(list: List<TreeNode>): ListNode {
+            return ListSourceNode(list, comments = this.comments)
+        }
     }
-}

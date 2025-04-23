@@ -37,49 +37,54 @@ fun main(args: Array<String>) {
         server:
             host: 127.0.0.1
             tcp_port: 8080
-        """.trimIndent()
+        """.trimIndent(),
     )
     file.deleteOnExit()
-    val config = Config { addSpec(ServerSpec) }
-        .from.yaml.file("server.yml")
-        .from.json.resource("server.json")
-        .from.env()
-        .from.systemProperties()
-    run {
-        val config = Config { addSpec(ServerSpec) }.withSource(
-            Source.from.yaml.file("server.yml") +
-                Source.from.json.resource("server.json") +
-                Source.from.env() +
-                Source.from.systemProperties()
-        )
-    }
-    run {
-        val config = Config { addSpec(ServerSpec) }
-            .from.yaml.watchFile("server.yml")
-            .from.json.resource("server.json")
-            .from.env()
-            .from.systemProperties()
-    }
-    val server = Server(config[ServerSpec.host], config[ServerSpec.tcpPort])
-    server.start()
-    run {
-        val server = Config()
+    val config =
+        Config { addSpec(ServerSpec) }
             .from.yaml.file("server.yml")
             .from.json.resource("server.json")
             .from.env()
             .from.systemProperties()
-            .at("server")
-            .toValue<Server>()
+    run {
+        val config =
+            Config { addSpec(ServerSpec) }.withSource(
+                Source.from.yaml.file("server.yml") +
+                    Source.from.json.resource("server.json") +
+                    Source.from.env() +
+                    Source.from.systemProperties(),
+            )
+    }
+    run {
+        val config =
+            Config { addSpec(ServerSpec) }
+                .from.yaml.watchFile("server.yml")
+                .from.json.resource("server.json")
+                .from.env()
+                .from.systemProperties()
+    }
+    val server = Server(config[ServerSpec.host], config[ServerSpec.tcpPort])
+    server.start()
+    run {
+        val server =
+            Config()
+                .from.yaml.file("server.yml")
+                .from.json.resource("server.json")
+                .from.env()
+                .from.systemProperties()
+                .at("server")
+                .toValue<Server>()
         server.start()
     }
     run {
-        val server = (
-            Source.from.yaml.file("server.yml") +
-                Source.from.json.resource("server.json") +
-                Source.from.env() +
-                Source.from.systemProperties()
+        val server =
+            (
+                Source.from.yaml.file("server.yml") +
+                    Source.from.json.resource("server.json") +
+                    Source.from.env() +
+                    Source.from.systemProperties()
             )["server"]
-            .toValue<Server>()
+                .toValue<Server>()
         server.start()
     }
 }

@@ -103,7 +103,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             val config =
                 subject.source(PropertiesProvider).file(
                     tempFileOf(
-                        propertiesContent,
+                        PROPERTIES_CONTENT,
                         suffix = ".properties",
                     ),
                 )
@@ -120,7 +120,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
         on("load from URL") {
             val service = Service.ignite()
             service.port(0)
-            service.get("/source.properties") { _, _ -> propertiesContent }
+            service.get("/source.properties") { _, _ -> PROPERTIES_CONTENT }
             service.awaitInitialization()
             val config =
                 subject.url(
@@ -134,7 +134,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
         on("load from URL string") {
             val service = Service.ignite()
             service.port(0)
-            service.get("/source.properties") { _, _ -> propertiesContent }
+            service.get("/source.properties") { _, _ -> PROPERTIES_CONTENT }
             service.awaitInitialization()
             val config =
                 subject.url(
@@ -149,7 +149,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             val config =
                 subject.file(
                     tempFileOf(
-                        propertiesContent,
+                        PROPERTIES_CONTENT,
                         suffix = ".properties",
                     ),
                 )
@@ -160,7 +160,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
         on("load from file path") {
             val file =
                 tempFileOf(
-                    propertiesContent,
+                    PROPERTIES_CONTENT,
                     suffix = ".properties",
                 )
             val config = subject.file(file.path)
@@ -171,7 +171,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
         on("load from watched file") {
             val file =
                 tempFileOf(
-                    propertiesContent,
+                    PROPERTIES_CONTENT,
                     suffix = ".properties",
                 )
             val config =
@@ -183,7 +183,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
                 )
             val originalValue = config[item]
             file.writeText(
-                propertiesContent.replace(
+                PROPERTIES_CONTENT.replace(
                     "properties",
                     "newValue",
                 ),
@@ -202,7 +202,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
         on("load from watched file with default delay time") {
             val file =
                 tempFileOf(
-                    propertiesContent,
+                    PROPERTIES_CONTENT,
                     suffix = ".properties",
                 )
             val config =
@@ -212,7 +212,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
                 )
             val originalValue = config[item]
             file.writeText(
-                propertiesContent.replace(
+                PROPERTIES_CONTENT.replace(
                     "properties",
                     "newValue",
                 ),
@@ -231,7 +231,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
         on("load from watched file with listener") {
             val file =
                 tempFileOf(
-                    propertiesContent,
+                    PROPERTIES_CONTENT,
                     suffix = ".properties",
                 )
             var newValue = ""
@@ -244,7 +244,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
                 newValue = config[item]
             }
             file.writeText(
-                propertiesContent.replace(
+                PROPERTIES_CONTENT.replace(
                     "properties",
                     "newValue",
                 ),
@@ -259,7 +259,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
         on("load from watched file path") {
             val file =
                 tempFileOf(
-                    propertiesContent,
+                    PROPERTIES_CONTENT,
                     suffix = ".properties",
                 )
             val config =
@@ -271,7 +271,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
                 )
             val originalValue = config[item]
             file.writeText(
-                propertiesContent.replace(
+                PROPERTIES_CONTENT.replace(
                     "properties",
                     "newValue",
                 ),
@@ -290,7 +290,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
         on("load from watched file path with default delay time") {
             val file =
                 tempFileOf(
-                    propertiesContent,
+                    PROPERTIES_CONTENT,
                     suffix = ".properties",
                 )
             val config =
@@ -300,7 +300,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
                 )
             val originalValue = config[item]
             file.writeText(
-                propertiesContent.replace(
+                PROPERTIES_CONTENT.replace(
                     "properties",
                     "newValue",
                 ),
@@ -317,7 +317,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             }
         }
         on("load from watched URL") {
-            var content = propertiesContent
+            var content = PROPERTIES_CONTENT
             val service = Service.ignite()
             service.port(0)
             service.get("/source.properties") { _, _ -> content }
@@ -332,7 +332,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
                 )
             val originalValue = config[item]
             content =
-                propertiesContent.replace(
+                PROPERTIES_CONTENT.replace(
                     "properties",
                     "newValue",
                 )
@@ -348,7 +348,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             }
         }
         on("load from watched URL with default delay time") {
-            var content = propertiesContent
+            var content = PROPERTIES_CONTENT
             val service = Service.ignite()
             service.port(0)
             service.get("/source.properties") { _, _ -> content }
@@ -361,7 +361,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
                 )
             val originalValue = config[item]
             content =
-                propertiesContent.replace(
+                PROPERTIES_CONTENT.replace(
                     "properties",
                     "newValue",
                 )
@@ -377,7 +377,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             }
         }
         on("load from watched URL string") {
-            var content = propertiesContent
+            var content = PROPERTIES_CONTENT
             val service = Service.ignite()
             service.port(0)
             service.get("/source.properties") { _, _ -> content }
@@ -392,7 +392,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
                 )
             val originalValue = config[item]
             content =
-                propertiesContent.replace(
+                PROPERTIES_CONTENT.replace(
                     "properties",
                     "newValue",
                 )
@@ -408,7 +408,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             }
         }
         on("load from watched URL string with default delay time") {
-            var content = propertiesContent
+            var content = PROPERTIES_CONTENT
             val service = Service.ignite()
             service.port(0)
             service.get("/source.properties") { _, _ -> content }
@@ -421,7 +421,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
                 )
             val originalValue = config[item]
             content =
-                propertiesContent.replace(
+                PROPERTIES_CONTENT.replace(
                     "properties",
                     "newValue",
                 )
@@ -437,7 +437,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
             }
         }
         on("load from watched URL string with listener") {
-            var content = propertiesContent
+            var content = PROPERTIES_CONTENT
             val service = Service.ignite()
             service.port(0)
             service.get("/source.properties") { _, _ -> content }
@@ -455,7 +455,7 @@ object DefaultLoadersSpec : SubjectSpek<DefaultLoaders>({
                 }
             val originalValue = config[item]
             content =
-                propertiesContent.replace(
+                PROPERTIES_CONTENT.replace(
                     "properties",
                     "newValue",
                 )

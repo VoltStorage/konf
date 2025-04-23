@@ -36,7 +36,7 @@ object DefaultHoconLoaderSpec : SubjectSpek<DefaultLoaders>({
 
     given("a loader") {
         on("load from HOCON file") {
-            val config = subject.file(tempFileOf(hoconContent, suffix = ".conf"))
+            val config = subject.file(tempFileOf(HOCON_CONTENT, suffix = ".conf"))
             it("should load as auto-detected file format") {
                 assertThat(config[item], equalTo("conf"))
             }

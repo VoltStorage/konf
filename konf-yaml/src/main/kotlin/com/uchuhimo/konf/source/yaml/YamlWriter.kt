@@ -28,7 +28,6 @@ import java.io.OutputStream
  * Writer for YAML source.
  */
 class YamlWriter(val config: Config) : Writer {
-
     override fun toWriter(writer: java.io.Writer) {
         val nodeWriter = YamlTreeNodeWriter(writer, config.isEnabled(Feature.WRITE_DESCRIPTIONS_AS_COMMENTS))
         nodeWriter.write(config.toTree())
@@ -43,9 +42,8 @@ class YamlWriter(val config: Config) : Writer {
 
 private class YamlTreeNodeWriter(
     private val writer: java.io.Writer,
-    private val writeComments: Boolean = false
+    private val writeComments: Boolean = false,
 ) {
-
     private val indentSize = 2
     private var ident = 0
 
@@ -79,7 +77,10 @@ private class YamlTreeNodeWriter(
         write(node, false)
     }
 
-    private fun write(node: TreeNode, inList: Boolean = false) {
+    private fun write(
+        node: TreeNode,
+        inList: Boolean = false,
+    ) {
         when (node) {
             is ValueNode -> writeValue(node)
             is ListNode -> writeList(node, inList)
@@ -88,8 +89,9 @@ private class YamlTreeNodeWriter(
     }
 
     private fun writeComments(node: TreeNode) {
-        if (!this.writeComments || node.comments.isEmpty())
+        if (!this.writeComments || node.comments.isEmpty()) {
             return
+        }
         val comments = node.comments.split("\n")
         comments.forEach { comment ->
             writeIndent()
@@ -123,7 +125,10 @@ private class YamlTreeNodeWriter(
         }
     }
 
-    private fun writeList(node: ListNode, inList: Boolean = false) {
+    private fun writeList(
+        node: ListNode,
+        inList: Boolean = false,
+    ) {
         val list = node.list
         if (list.isEmpty()) {
             write(" []")
@@ -134,8 +139,9 @@ private class YamlTreeNodeWriter(
             list.forEach { element ->
                 val firstListInListEntry = first && inList && !shouldWriteComments(list[0])
                 if (!firstListInListEntry) {
-                    if (first)
+                    if (first) {
                         writeNewLine()
+                    }
                     writeComments(element)
                     writeIndent()
                 }
@@ -147,21 +153,26 @@ private class YamlTreeNodeWriter(
         }
     }
 
-    private fun writeMap(node: TreeNode, inList: Boolean = false) {
+    private fun writeMap(
+        node: TreeNode,
+        inList: Boolean = false,
+    ) {
         val map = node.children
         if (map.isEmpty()) {
             write(" {}")
             writeNewLine()
         } else {
             var first = true
-            if (inList)
+            if (inList) {
                 increaseIndent()
+            }
             map.forEach { (name, node) ->
                 writeEntry(name, node, inList, first)
                 first = false
             }
-            if (inList)
+            if (inList) {
                 decreaseIndent()
+            }
         }
     }
 
@@ -172,20 +183,29 @@ private class YamlTreeNodeWriter(
     private fun hasTrailingWhitespace(s: String) = s.isNotEmpty() && (s.first() == ' ' || s.last() == ' ')
 
     private fun quoteValueIfNeeded(s: String): String {
-        if (s.isBlank())
+        if (s.isBlank()) {
             return quoteString(s)
-        if (s.last() == ':' || hasTrailingWhitespace(s) || hasQuoteChar(s))
+        }
+        if (s.last() == ':' || hasTrailingWhitespace(s) || hasQuoteChar(s)) {
             return quoteString(s)
-        if (!s.first().isLetterOrDigit())
+        }
+        if (!s.first().isLetterOrDigit()) {
             return quoteString(s)
+        }
         return s
     }
 
-    private fun writeEntry(name: String, node: TreeNode, first: Boolean = false, inList: Boolean = false) {
+    private fun writeEntry(
+        name: String,
+        node: TreeNode,
+        first: Boolean = false,
+        inList: Boolean = false,
+    ) {
         val firstListEntry = first && inList
         if (!firstListEntry || shouldWriteComments(node)) {
-            if (firstListEntry)
+            if (firstListEntry) {
                 writeNewLine()
+            }
             writeComments(node)
             writeIndent()
         }

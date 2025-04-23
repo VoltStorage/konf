@@ -106,7 +106,9 @@ object ConfigForLoad : ConfigSpec("level1.level2") {
 }
 
 enum class EnumForLoad {
-    LABEL1, LABEL2, LABEL3
+    LABEL1,
+    LABEL2,
+    LABEL3,
 }
 
 data class ClassForLoad(
@@ -139,5 +141,5 @@ data class ClassForLoad(
     val size: SizeInBytes,
     val enum: EnumForLoad,
     val booleanArray: BooleanArray,
-    val nested: Array<List<Set<Map<String, Int>>>>
+    val nested: Array<List<Set<Map<String, Int>>>>,
 ) : Serializable

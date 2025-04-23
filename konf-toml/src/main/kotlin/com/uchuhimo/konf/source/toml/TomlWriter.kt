@@ -40,11 +40,12 @@ class TomlWriter(val config: Config) : Writer {
     }
 
     override fun toText(): String {
-        val text = if (config.isEnabled(Feature.WRITE_DESCRIPTIONS_AS_COMMENTS)) {
-            toml4jWriter.write(config.toTree())
-        } else {
-            toml4jWriter.write(config.toHierarchicalMap())
-        }
+        val text =
+            if (config.isEnabled(Feature.WRITE_DESCRIPTIONS_AS_COMMENTS)) {
+                toml4jWriter.write(config.toTree())
+            } else {
+                toml4jWriter.write(config.toHierarchicalMap())
+            }
         return text.replace("\n", System.lineSeparator())
     }
 }

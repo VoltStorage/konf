@@ -17,7 +17,7 @@
 package com.uchuhimo.konf.source
 
 //language=TOML
-const val tomlContent =
+const val TOML_CONTENT =
     """
 [source.test]
 type = "toml"
