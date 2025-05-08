@@ -1,14 +1,18 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import java.util.*
 
-val repositoryUrl by extra { getPrivateProperty("repositoryUrl") }
 val repoUserToken by extra { getPrivateProperty("repoUserToken") }
 val repoUserPassword by extra { getPrivateProperty("repoUserPassword") }
 val signPublications by extra { getPrivateProperty("signPublications") }
+//val signingKeyId by extra { getPrivateProperty("signingKeyId") }
+//val signingKey by extra { getPrivateProperty("signingKey") }
+//val signingPassword by extra { getPrivateProperty("signingPassword") }
+
+println("repoUserToken: $repoUserToken")
 
 tasks.named<Wrapper>("wrapper") {
     group = "help"
-    gradleVersion = "8.5"
+    gradleVersion = "8.13"
     distributionType = Wrapper.DistributionType.ALL
 }
 
@@ -48,7 +52,7 @@ allprojects {
     apply(plugin = "org.jetbrains.dokka")
 
     group = "com.voltstorage"
-    version = "1.2.7"
+    version = "1.0.0"
 
     repositories {
         mavenCentral()
@@ -215,7 +219,7 @@ subprojects {
 
     val javadocJar by tasks.registering(Jar::class) {
         archiveClassifier.set("javadoc")
-        from(dokka)
+        from(tasks.dokkaGeneratePublicationHtml)
     }
 
     val projectDescription =
@@ -245,15 +249,16 @@ subprojects {
                     url.set(projectUrl)
                     licenses {
                         license {
-                            name.set("The Apache Software License, Version 2.0")
+                            name.set("Apache License, Version 2.0")
                             url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                            distribution.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
                         }
                     }
                     developers {
                         developer {
                             id.set("voltstorage")
-                            name.set("voltstorage")
-                            email.set("voltstorage@outlook.com")
+                            name.set("The Voltstorage developers")
+                            email.set("softwaredevelopment@voltstorage.com")
                         }
                     }
                     scm {
@@ -263,11 +268,23 @@ subprojects {
             }
         }
         repositories {
-            mavenCentral()
+            mavenCentral {
+                credentials {
+                    username = repoUserToken
+                    password = repoUserPassword
+                }
+            }
         }
     }
 
     signing {
+        val signingKeyId: String? by project
+        val signingKey: String? by project
+        val signingPassword: String? by project
+
+        println("signingKeyId: $signingKeyId")
+
+        useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
         setRequired({ signPublications == "true" })
         sign(publishing.publications["maven"])
     }
