@@ -12,7 +12,7 @@ dependencies {
         ":konf-hocon",
         ":konf-toml",
         ":konf-xml",
-        ":konf-yaml"
+        ":konf-yaml",
     )) {
         api(project(name))
         testImplementation(testFixtures(project(name)))

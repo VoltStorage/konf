@@ -1,6 +1,6 @@
 dependencies {
     api(project(":konf-core"))
-    implementation("org.yaml", "snakeyaml", Versions.yaml)
+    implementation("org.yaml", "snakeyaml", Versions.YAML)
 
     testImplementation(testFixtures(project(":konf-core")))
 }
