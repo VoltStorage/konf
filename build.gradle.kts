@@ -200,7 +200,6 @@ subprojects {
             version = projectVersion,
         )
 
-        // Configure POM metadata for the published artifact
         pom {
             name.set(rootProject.name)
             description.set(projectDescription)
@@ -228,10 +227,8 @@ subprojects {
             }
         }
 
-        // Configure publishing to Maven Central
         publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
-        // Enable GPG signing for all publications
         signAllPublications()
     }
 }
