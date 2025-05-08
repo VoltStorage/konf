@@ -1,20 +1,6 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import com.vanniktech.maven.publish.SonatypeHost
 import java.util.*
-
-val repoUserToken by extra { getPrivateProperty("repoUserToken") }
-val repoUserPassword by extra { getPrivateProperty("repoUserPassword") }
-val signPublications by extra { getPrivateProperty("signPublications") }
-//val signingKeyId by extra { getPrivateProperty("signingKeyId") }
-//val signingKey by extra { getPrivateProperty("signingKey") }
-//val signingPassword by extra { getPrivateProperty("signingPassword") }
-
-println("repoUserToken: $repoUserToken")
-
-tasks.named<Wrapper>("wrapper") {
-    group = "help"
-    gradleVersion = "8.13"
-    distributionType = Wrapper.DistributionType.ALL
-}
 
 buildscript {
     repositories {
@@ -26,7 +12,6 @@ plugins {
     java
     `java-test-fixtures`
     jacoco
-    `maven-publish`
     signing
     kotlin("jvm") version Versions.KOTLIN
     kotlin("plugin.allopen") version Versions.KOTLIN
@@ -35,13 +20,14 @@ plugins {
     id("com.diffplug.spotless") version Versions.SPOTLESS
     id("com.github.ben-manes.versions") version Versions.DEPENDENCY_UPDATE
     id("org.jetbrains.dokka") version Versions.DOKKA
+    id("com.vanniktech.maven.publish") version "0.31.0"
 }
 
 allprojects {
     apply(plugin = "java")
     apply(plugin = "java-test-fixtures")
     apply(plugin = "jacoco")
-    apply(plugin = "maven-publish")
+    apply(plugin = "com.vanniktech.maven.publish")
     apply(plugin = "signing")
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "kotlin-allopen")
@@ -52,7 +38,10 @@ allprojects {
     apply(plugin = "org.jetbrains.dokka")
 
     group = "com.voltstorage"
-    version = "1.0.0"
+
+    version = System.getenv("LIBRARY_VERSION") ?: project.findProperty("localLibraryVersion") ?: "-.-.-"
+
+    println("Using version: $version")
 
     repositories {
         mavenCentral()
@@ -109,8 +98,7 @@ subprojects {
         testRuntimeOnly("org.slf4j", "slf4j-simple", Versions.SLF4J)
     }
 
-    val test by tasks.existing(Test::class)
-    test {
+    tasks.test {
         useJUnitPlatform()
         testLogging.apply {
             showStandardStreams = true
@@ -129,10 +117,8 @@ subprojects {
         properties.forEach { key, value ->
             environment(key as String, value)
         }
-    }
 
-    tasks.withType<JavaCompile> {
-        options.encoding = "UTF-8"
+        finalizedBy("jacocoTestReport")
     }
 
     kotlin {
@@ -184,19 +170,6 @@ subprojects {
         toolVersion = Versions.JACOCO
     }
 
-    val jacocoTestReport by tasks.existing(JacocoReport::class) {
-        reports {
-            // xml.isEnabled = true
-            xml.required.set(true)
-            // html.isEnabled = true
-            html.required.set(true)
-        }
-    }
-
-    val check by tasks.existing {
-        dependsOn(jacocoTestReport)
-    }
-
     dokka {
         dokkaSourceSets.configureEach {
             reportUndocumented.set(false)
@@ -212,16 +185,6 @@ subprojects {
         }
     }
 
-    val sourcesJar by tasks.registering(Jar::class) {
-        archiveClassifier.set("sources")
-        from(sourceSets.main.get().allSource)
-    }
-
-    val javadocJar by tasks.registering(Jar::class) {
-        archiveClassifier.set("javadoc")
-        from(tasks.dokkaGeneratePublicationHtml)
-    }
-
     val projectDescription =
         "A type-safe cascading configuration library for Kotlin/Java, " +
             "supporting most configuration formats"
@@ -230,72 +193,45 @@ subprojects {
     val projectVersion = project.version as String
     val projectUrl = "https://github.com/voltstorage/konf"
 
-    publishing {
-        publications {
-            create<MavenPublication>("maven") {
-                from(components["java"])
-                artifact(sourcesJar.get())
-                artifact(javadocJar.get())
+    mavenPublishing {
+        coordinates(
+            groupId = projectGroup,
+            artifactId = projectName,
+            version = projectVersion,
+        )
 
-                groupId = projectGroup
-                artifactId = projectName
-                version = projectVersion
+        // Configure POM metadata for the published artifact
+        pom {
+            name.set(rootProject.name)
+            description.set(projectDescription)
+            inceptionYear.set("2025")
+            url.set(projectUrl)
 
-                suppressPomMetadataWarningsFor("testFixturesApiElements")
-                suppressPomMetadataWarningsFor("testFixturesRuntimeElements")
-                pom {
-                    name.set(rootProject.name)
-                    description.set(projectDescription)
-                    url.set(projectUrl)
-                    licenses {
-                        license {
-                            name.set("Apache License, Version 2.0")
-                            url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                            distribution.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                        }
-                    }
-                    developers {
-                        developer {
-                            id.set("voltstorage")
-                            name.set("The Voltstorage developers")
-                            email.set("softwaredevelopment@voltstorage.com")
-                        }
-                    }
-                    scm {
-                        url.set(projectUrl)
-                    }
+            licenses {
+                license {
+                    name.set("Apache License, Version 2.0")
+                    url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                    distribution.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
                 }
             }
-        }
-        repositories {
-            mavenCentral {
-                credentials {
-                    username = repoUserToken
-                    password = repoUserPassword
+
+            developers {
+                developer {
+                    id.set("voltstorage")
+                    name.set("The Voltstorage developers")
+                    email.set("softwaredevelopment@voltstorage.com")
                 }
             }
+
+            scm {
+                url.set(projectUrl)
+            }
         }
-    }
 
-    signing {
-        val signingKeyId: String? by project
-        val signingKey: String? by project
-        val signingPassword: String? by project
+        // Configure publishing to Maven Central
+        publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
-        println("signingKeyId: $signingKeyId")
-
-        useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
-        setRequired({ signPublications == "true" })
-        sign(publishing.publications["maven"])
-    }
-
-    tasks {
-        val install by registering
-        afterEvaluate {
-            val publishToMavenLocal by existing
-            val publish by existing
-            install.configure { dependsOn(publishToMavenLocal) }
-            publish { dependsOn(check, install) }
-        }
+        // Enable GPG signing for all publications
+        signAllPublications()
     }
 }
