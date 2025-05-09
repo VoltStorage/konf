@@ -41,8 +41,6 @@ allprojects {
 
     version = System.getenv("LIBRARY_VERSION") ?: project.findProperty("localLibraryVersion") ?: "-.-.-"
 
-    println("Using version: $version")
-
     repositories {
         mavenCentral()
     }
