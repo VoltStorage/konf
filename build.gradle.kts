@@ -37,7 +37,7 @@ allprojects {
     apply(plugin = "com.github.ben-manes.versions")
     apply(plugin = "org.jetbrains.dokka")
 
-    group = "com.voltstorage"
+    group = "io.github.voltstorage"
 
     version = System.getenv("LIBRARY_VERSION") ?: project.findProperty("localLibraryVersion") ?: "-.-.-"
 
@@ -110,7 +110,7 @@ subprojects {
         maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
         val properties = Properties()
         properties.load(
-            rootProject.file("konf-core/src/test/kotlin/com/voltstorage/konf/source/env/env.properties").inputStream(),
+            rootProject.file("konf-core/src/test/kotlin/io/github/voltstorage/konf/source/env/env.properties").inputStream(),
         )
         properties.forEach { key, value ->
             environment(key as String, value)
