@@ -30,7 +30,7 @@ jobs:
       - run: chmod +x ./gradlew
 
       - name: Lint
-        run: ./gradlew spotlessApply
+        run: ./gradlew lintKotlin
 
       - name: Test
         run: ./gradlew test

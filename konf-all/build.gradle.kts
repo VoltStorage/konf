@@ -1,3 +1,7 @@
+plugins {
+    id("konf.kotlin-conventions")
+}
+
 sourceSets {
     register("snippet")
 }
