@@ -1,3 +1,3 @@
-dependencies {
-    jmhImplementation(kotlin("stdlib", Versions.KOTLIN))
+plugins {
+    id("konf.kotlin-conventions")
 }

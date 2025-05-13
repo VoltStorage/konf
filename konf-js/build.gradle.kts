@@ -1,3 +1,7 @@
+plugins {
+    id("konf.kotlin-conventions")
+}
+
 dependencies {
     api(project(":konf-core"))
     implementation("org.graalvm.sdk", "graal-sdk", Versions.GRAAL)
